@@ -1,4 +1,6 @@
-// "use client"
+"use server"
+console.log(process.env.API_URL);
+
 export async function GetAPI1() {
     const res = await fetch(`${process.env.API_URL}?hwid=5729708&token=NTcyOTcwOC1lYm94&OUT1=0`)
 
