@@ -121,79 +121,119 @@ export default async function Home() {
       <div className="grid grid-cols-1 h-[800px] mb-2">
         <Model>
           <Room />
-          {data5.p001 && <Toy position={[1, 0.9, 1]} />}
+          {/* {data5.p001 &&  */}
+            <Toy position={[1, 0.9, 1]} />
+          {/* } */}
         </Model>
       </div>
       <div className="grid grid-cols-3">
-        <div className="gap-2">
+        <div className="gap-4">
           <label className="font-bold underline text-lg mb-2">API1</label>
-          <p>{convertToDateTimeText(data1.datetime)}</p>
-          <p>{data1.OUT1}</p>
+          {!data1.Error ? (
+            <>
+              <p>{convertToDateTimeText(data1.datetime)}</p>
+              <p>{data1.OUT1}</p>
+            </>
+          ) : (
+            <p className="text-red-600">Can not load data!</p>
+          )}
         </div>
-        <div className="gap-2">
+        <div className="gap-4">
           <label className="font-bold underline text-lg">API2</label>
-          <p>{convertToDateTimeText(data2.datetime)}</p>
-          <p>{data2.IN1}</p>
-          <p>{data2.IN2}</p>
-          <p>{data2.IN3}</p>
-          <p>{data2.IN4}</p>
+          {!data2.Error ? (
+            <>
+              <p>{convertToDateTimeText(data2.datetime)}</p>
+              <p>{data2.IN1}</p>
+              <p>{data2.IN2}</p>
+              <p>{data2.IN3}</p>
+              <p>{data2.IN4}</p>
+            </>
+          ) : (
+            <p className="text-red-600">Can not load data!</p>
+          )}
         </div>
-        <div className="gap-2">
+        <div className="gap-4">
           <label className="font-bold underline text-lg">API3</label>
-          <p>{convertToDateTimeText(data3.datetime)}</p>
-          <p>{data3.IN1}</p>
-          <p>{data3.IN2}</p>
-          <p>{data3.IN3}</p>
-          <p>{data3.IN4}</p>
-          <p>{data3.OUT4}</p>
+          {!data3.Error ? (
+            <>
+              <p>{convertToDateTimeText(data3.datetime)}</p>
+              <p>{data3.IN1}</p>
+              <p>{data3.IN2}</p>
+              <p>{data3.IN3}</p>
+              <p>{data3.IN4}</p>
+              <p>{data3.OUT4}</p>
+            </>
+          ) : (
+            <p className="text-red-600">Can not load data!</p>
+          )}
         </div>
-        <div className="gap-2">
+        <div className="gap-4">
           <label className="font-bold underline text-lg">API4</label>
-          <p>{convertToDateTimeText(data4.datetime)}</p>
-          <p>{data4.IN1}</p>
-          <p>{data4.IN2}</p>
-          <p>{data4.IN3}</p>
-          <p>{data4.IN4}</p>
-          <p>{data4.p221}</p>
-          <p>{data4.p222}</p>
+          {!data4.Error ? (
+            <>
+              <p>{convertToDateTimeText(data4.datetime)}</p>
+              <p>{data4.IN1}</p>
+              <p>{data4.IN2}</p>
+              <p>{data4.IN3}</p>
+              <p>{data4.IN4}</p>
+              <p>{data4.p221}</p>
+              <p>{data4.p222}</p>
+            </>
+          ) : (
+            <p className="text-red-600">Can not load data!</p>
+          )}
         </div>
-        <div className="gap-2">
+
+        <div className="gap-4">
           <label className="font-bold underline text-lg">API5</label>
-          <p>{convertToDateTimeText(data5.datetime)}</p>
-          <p>{data5.p001}</p>
-          <p>{data5.p002}</p>
-          <p>{data5.p003}</p>
-          <p>{data5.p004}</p>
-          <p>{data5.p005}</p>
-          <p>{data5.p006}</p>
-          <p>{data5.p007}</p>
-          <p>{data5.p008}</p>
-          <p>{data5.p009}</p>
-          <p>{data5.p010}</p>
-          <p>{data5.p011}</p>
-          <p>{data5.p012}</p>
-          <p>{data5.p013}</p>
-          <p>{data5.p014}</p>
-          <p>{data5.p015}</p>
-          <p>{data5.p016}</p>
-          <p>{data5.p017}</p>
-          <p>{data5.p018}</p>
-          <p>{data5.p019}</p>
-          <p>{data5.p020}</p>
+          {!data5.Error ? (
+            <>
+              <p>{convertToDateTimeText(data5.datetime)}</p>
+              <p>{data5.p001}</p>
+              <p>{data5.p002}</p>
+              <p>{data5.p003}</p>
+              <p>{data5.p004}</p>
+              <p>{data5.p005}</p>
+              <p>{data5.p006}</p>
+              <p>{data5.p007}</p>
+              <p>{data5.p008}</p>
+              <p>{data5.p009}</p>
+              <p>{data5.p010}</p>
+              <p>{data5.p011}</p>
+              <p>{data5.p012}</p>
+              <p>{data5.p013}</p>
+              <p>{data5.p014}</p>
+              <p>{data5.p015}</p>
+              <p>{data5.p016}</p>
+              <p>{data5.p017}</p>
+              <p>{data5.p018}</p>
+              <p>{data5.p019}</p>
+              <p>{data5.p020}</p>
+            </>
+          ) : (
+            <p className="text-red-600">Can not load data!</p>
+          )}
         </div>
-        <div className="gap-2">
+
+        <div className="gap-4">
           <label className="font-bold underline text-lg">API6</label>
-          <p>{convertToDateTimeText(data6.datetime)}</p>
-          <p>{data6.s201}</p>
-          <p>{data6.s202}</p>
-          <p>{data6.s203}</p>
-          <p>{data6.s204}</p>
-          <p>{data6.s205}</p>
-          <p>{data6.s206}</p>
-          <p>{data6.s207}</p>
-          <p>{data6.s208}</p>
-          <p>{data6.s209}</p>
-          <p>{data6.s210}</p>
+          {!data6.Error ? (
+            <>
+              <p>{convertToDateTimeText(data6.datetime)}</p>
+              <p>{data6.s201}</p>
+              <p>{data6.s202}</p>
+              <p>{data6.s203}</p>
+              <p>{data6.s204}</p>
+              <p>{data6.s205}</p>
+              <p>{data6.s206}</p>
+              <p>{data6.s207}</p>
+              <p>{data6.s208}</p>
+              <p>{data6.s209}</p>
+              <p>{data6.s210}</p>
+            </>
+          ) : (
+            <p className="text-red-600">Can not load data!</p>
+          )}
         </div>
       </div>
     </div>
