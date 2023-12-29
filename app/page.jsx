@@ -106,11 +106,10 @@ export default async function Home() {
 
   const convertToDateTimeText = (value) => {
     const momentDateTime = moment(value).tz("Asia/Bangkok");
-    const formattedDate = new Intl.DateTimeFormat("th-TH-u-ca-buddhist", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(momentDateTime.toDate());
+    const thaiBuddhistYear = momentDateTime.format("YYYY", {
+      calendar: "buddhist",
+    });
+    const formattedDate = momentDateTime.format("DD/MM/") + thaiBuddhistYear;
     const formattedTime = momentDateTime.format("HH:mm");
     const formattedDateTime = `${formattedDate} ${formattedTime} น.`;
     return formattedDateTime;
@@ -122,11 +121,11 @@ export default async function Home() {
         <Model>
           <Room />
           {/* {data5.p001 &&  */}
-            <Toy position={[1, 0.9, 1]} />
+          <Toy position={[1, 0.9, 1]} />
           {/* } */}
         </Model>
       </div>
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-3 text-white">
         <div className="gap-4">
           <label className="font-bold underline text-lg mb-2">API1</label>
           {!data1.Error ? (

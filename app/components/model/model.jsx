@@ -8,7 +8,7 @@ export function Model({ children }) {
   return (
     <Canvas>
       <Sky scale={1000} sunPosition={[2, 0.4, 10]} />
-      {/* <ambientLight intensity={2} /> */}
+      <ambientLight intensity={1} />
       {/* <directionalLight intensity={3} position={[2, 4, 0]} /> */}
       <Suspense fallback={null}>
         {children}
