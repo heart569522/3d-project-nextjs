@@ -95,12 +95,16 @@ export default function Home() {
   };
 
   useEffect(() => {
-    getData1();
-    getData2();
-    getData3();
-    getData4();
-    getData5();
-    getData6();
+    const fetchData = async () => {
+      await getData1();
+      await getData2();
+      await getData3();
+      await getData4();
+      await getData5();
+      await getData6();
+    };
+
+    fetchData();
   }, []);
 
   const convertToDateTimeText = (value) => {
