@@ -11,7 +11,18 @@ import { Model } from "@/app/components/model/model";
 import moment from "moment-timezone";
 import { Room } from "./components/model/room";
 import { Toy } from "./components/model/toy";
+import { Kitchen } from "./components/model/kitchen";
 import { useEffect, useState } from "react";
+import { Canvas } from "@react-three/fiber";
+import { Environment, Sky, OrbitControls, Bounds } from "@react-three/drei";
+import { Suspense } from "react";
+import {
+  EffectComposer,
+  SSAO,
+  SMAA,
+  Selection,
+  Outline,
+} from "@react-three/postprocessing";
 
 export default function Home() {
   // const data1 = await GetAPI1();
@@ -33,6 +44,16 @@ export default function Home() {
   const [data4, setData4] = useState([]);
   const [data5, setData5] = useState([]);
   const [data6, setData6] = useState([]);
+  const [color, setColor] = useState({
+    red: "#FF0000",
+    orange: "#FF8700",
+    warm: "#FFC47E",
+    skyBlue: "#0097FF",
+    blue: "#002ECB",
+    cool: "#86B6F6"
+  });
+
+  const [test, setTest] = useState('');
 
   const getData1 = async () => {
     try {
@@ -122,12 +143,50 @@ export default function Home() {
   return (
     <div className="">
       <div className="grid grid-cols-1 h-[800px] mb-2">
-        <Model>
-          <Room />
-          {/* {data5.p001 &&  */}
-          <Toy position={[1, 0.9, 1]} />
-          {/* } */}
-        </Model>
+        <Canvas camera={{ position: [0, 2, -7] }}>
+          <Sky scale={1000} sunPosition={[2, 0.4, 10]} />
+          {/* <fog attach="fog" args={['#d4d4d4', 5, 18]} /> */}
+          <Suspense fallback={null}>
+            {/* <ambientLight intensity={1} /> */}
+            {/* <directionalLight intensity={0.2} position={[2, 2, 0]} /> */}
+            {/* <pointLight intensity={60} position={[0, 5, 0]} color={color.warm}/> */}
+            {/* <spotLight intensity={5} position={[0.5, 5, 3]} /> */}
+            <Selection>
+              <EffectComposer multisampling={0} autoClear={false}>
+                <SSAO
+                  radius={0.05}
+                  intensity={10}
+                  luminanceInfluence={0.5}
+                  color="black"
+                />
+                <Outline
+                  visibleEdgeColor="red"
+                  hiddenEdgeColor="red"
+                  blur
+                  width={1000}
+                  edgeStrength={100}
+                />
+                <SMAA />
+              </EffectComposer>
+              <Bounds margin={1.2} damping={0}>
+                <Room />
+              </Bounds>
+            </Selection>
+            <OrbitControls enablePan={true} />
+            <Environment preset="city" background blur={1} />
+          </Suspense>
+
+          {/* <GizmoHelper
+            alignment="bottom-right"
+            margin={[80, 80]}
+            // renderPriority={2}
+          >
+            <GizmoViewport
+              axisColors={["hotpink", "aquamarine", "#3498DB"]}
+              labelColor="black"
+            />
+          </GizmoHelper> */}
+        </Canvas>
       </div>
       <div className="grid grid-cols-3 text-white">
         <div className="gap-4">
