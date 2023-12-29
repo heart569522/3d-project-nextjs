@@ -105,11 +105,12 @@ export default async function Home() {
   // }, []);
 
   const convertToDateTimeText = (value) => {
-    const momentDateTime = moment(value).tz("Asia/Bangkok");
-    const thaiBuddhistYear = momentDateTime.format("YYYY", {
-      calendar: "buddhist",
-    });
-    const formattedDate = momentDateTime.format("DD/MM/") + thaiBuddhistYear;
+    const momentDateTime = moment(value);
+    const formattedDate = new Intl.DateTimeFormat("th-TH-u-ca-buddhist", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(momentDateTime.toDate());
     const formattedTime = momentDateTime.format("HH:mm");
     const formattedDateTime = `${formattedDate} ${formattedTime} น.`;
     return formattedDateTime;
