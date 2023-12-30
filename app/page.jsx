@@ -12,8 +12,8 @@ import moment from "moment-timezone";
 import { Room } from "./components/model/room";
 import { Toy } from "./components/model/toy";
 import { Kitchen } from "./components/model/kitchen";
-import { useEffect, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { useEffect, useState, useRef } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
 import { Environment, Sky, OrbitControls, Bounds } from "@react-three/drei";
 import { Suspense } from "react";
 import {
@@ -50,10 +50,42 @@ export default function Home() {
     warm: "#FFC47E",
     skyBlue: "#0097FF",
     blue: "#002ECB",
-    cool: "#86B6F6"
+    cool: "#86B6F6",
   });
 
-  const [test, setTest] = useState('');
+  const [bedClicked, setBedClicked] = useState(false);
+  const controls = useRef();
+  console.log(bedClicked)
+
+  useEffect(() => {
+    if (bedClicked) {
+      
+    } else {
+
+    }
+  }, [bedClicked]);
+
+  // useEffect(() => {
+  //   if (bedClicked) {
+  //     // Assuming you want to zoom to the bed position
+  //     controls.current.object.position.set(-0.03533639268780575, 2.6994317192051405, 0.14565762923194314).toArray();
+  //     controls.current.update();
+  //   } else {
+  //     // Assuming you want to reset to a default position
+  //     controls.current?.object.position.set(5, 4, -5);
+  //     controls.current?.update();
+  //   }
+  // }, [bedClicked]);
+
+  const handleBedClick = (value) => {
+    setBedClicked(value);
+  };
+
+  const handleControlsChange = () => {
+    // Log or update the camera position when the controls change
+    const newPosition = controls.current.object.position.toArray();
+    console.log("New Camera Position:", newPosition);
+  };
 
   const getData1 = async () => {
     try {
@@ -115,18 +147,18 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      await getData1();
-      await getData2();
-      await getData3();
-      await getData4();
-      await getData5();
-      await getData6();
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     await getData1();
+  //     await getData2();
+  //     await getData3();
+  //     await getData4();
+  //     await getData5();
+  //     await getData6();
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   const convertToDateTimeText = (value) => {
     const momentDateTime = moment(value);
@@ -143,7 +175,7 @@ export default function Home() {
   return (
     <div className="">
       <div className="grid grid-cols-1 h-[800px] mb-2">
-        <Canvas camera={{ position: [0, 2, -7] }}>
+        <Canvas camera={{ position: [5, 4, -5] }}>
           <Sky scale={1000} sunPosition={[2, 0.4, 10]} />
           {/* <fog attach="fog" args={['#d4d4d4', 5, 18]} /> */}
           <Suspense fallback={null}>
@@ -160,8 +192,8 @@ export default function Home() {
                   color="black"
                 />
                 <Outline
-                  visibleEdgeColor="red"
-                  hiddenEdgeColor="red"
+                  visibleEdgeColor={bedClicked ? 'green' : 'red'}
+                  hiddenEdgeColor={bedClicked ? 'green' : 'red'}
                   blur
                   width={1000}
                   edgeStrength={100}
@@ -169,10 +201,10 @@ export default function Home() {
                 <SMAA />
               </EffectComposer>
               <Bounds margin={1.2} damping={0}>
-                <Room />
+                <Room onBedClick={handleBedClick} />
               </Bounds>
             </Selection>
-            <OrbitControls enablePan={true} />
+            <OrbitControls onChange={handleControlsChange} ref={controls} />
             <Environment preset="city" background blur={1} />
           </Suspense>
 

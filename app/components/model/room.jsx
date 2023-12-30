@@ -6,11 +6,16 @@ Command: npx gltfjsx@6.2.16 ./public/bedroom.glb
 import React, { useRef, useState } from "react";
 import { useGLTF, Html } from "@react-three/drei";
 import { Select } from "@react-three/postprocessing";
-import * as THREE from 'three';
+import * as THREE from "three";
 
 export function Room(props) {
   const { nodes, materials } = useGLTF("/bedroom.glb");
   const [hover, setHover] = useState();
+  const [click, setClick] = useState({
+    chair: false,
+    bed: false,
+    table: false,
+  });
   const [obj, setObj] = useState({
     all: false,
     chair: false,
@@ -18,18 +23,9 @@ export function Room(props) {
     table: false,
   });
 
-  const handleTableClick = () => {
-    // Assuming you want to change the color to red
-    const newColor = new THREE.Color(0xff0000); // Red color
-
-    // Create a copy of the material for the table mesh
-    const tableMaterial = materials.Frame.clone();
-    
-    // Update the color of the copied material
-    tableMaterial.color = newColor;
-
-    // Update the material of the table mesh
-    nodes.Coffe_table.material = tableMaterial;
+  const handleBedClick = () => {
+    setClick((prevClick) => ({ ...prevClick, bed: !prevClick.bed }));
+    props.onBedClick(!click.bed); // Pass the value to the parent component
   };
 
   return (
@@ -47,9 +43,10 @@ export function Room(props) {
         />
         <Select
           name="bed"
-          enabled={hover === "bed" || obj.bed}
+          enabled={hover === "bed" || obj.bed || click.bed}
           onPointerOver={() => setHover("bed")}
           onPointerOut={() => setHover(null)}
+          onClick={handleBedClick}
         >
           <mesh
             geometry={nodes.Bed_frame.geometry}
@@ -79,7 +76,7 @@ export function Room(props) {
               geometry={nodes.Cube012_1.geometry}
               material={materials.Pillow}
             />
-            {(hover === "bed" || obj.bed) && (
+            {click.bed && (
               <Html distanceFactor={10}>
                 <div className="content">Bed</div>
               </Html>
@@ -146,7 +143,9 @@ export function Room(props) {
           enabled={hover === "table" || obj.table}
           onPointerOver={() => setHover("table")}
           onPointerOut={() => setHover(null)}
-          onClick={() => handleTableClick()}
+          onClick={() =>
+            setClick((prevClick) => ({ ...prevClick, table: !prevClick.table }))
+          }
         >
           <mesh
             geometry={nodes.Coffe_table.geometry}
@@ -172,12 +171,12 @@ export function Room(props) {
               geometry={nodes.Cylinder006_1.geometry}
               material={materials.Coffe}
             />
+            {click.table && (
+              <Html distanceFactor={10}>
+                <div className="content">Table</div>
+              </Html>
+            )}
           </group>
-          {(hover === "table" || obj.table) && (
-            <Html distanceFactor={10}>
-              <div className="content">Table</div>
-            </Html>
-          )}
         </Select>
         <group position={[1.186, 0.208, -0.871]} rotation={[0, 0.455, 0]}>
           <mesh geometry={nodes.Plane.geometry} material={materials.Pillow} />
