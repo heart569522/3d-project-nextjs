@@ -61,3 +61,39 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+.chart-container-rtl {
+  position: absolute;
+  right: 0;
+  width: 300px;
+  z-index: 10;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.chart-container-ltr {
+  position: absolute;
+  left: 0;
+  width: 300px;
+  z-index: 10;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.chart-container-rtl .chart-content-rtl {
+  overflow-x: hidden; /* Hide horizontal scrollbar on content */
+  overflow-y: auto;
+  direction: rtl; /* Set direction to right-to-left for the scrollbar */
+  height: 100%;
+}
+
+.chart-container-ltr .chart-content-ltr {
+  overflow-x: hidden; /* Hide horizontal scrollbar on content */
+  overflow-y: auto;
+  height: 100%;
+}
+
+.chart-container-rtl .chart-content-rtl .content-ltr {
+  direction: ltr; /* Set direction to left-to-right for the label */
+}
+

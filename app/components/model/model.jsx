@@ -56,7 +56,7 @@ export default function Model() {
 
   return (
     <Canvas camera={{ position: [5, 4, -5] }}>
-      <Sky scale={1000} sunPosition={[2, 0.4, 10]} />
+      {/* <Sky scale={1000} sunPosition={[2, 0.4, 10]} /> */}
       {/* <fog attach="fog" args={['#d4d4d4', 5, 18]} /> */}
       <Suspense fallback={null}>
         {/* <ambientLight intensity={1} /> */}
