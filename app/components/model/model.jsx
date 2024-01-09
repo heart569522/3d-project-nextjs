@@ -51,7 +51,7 @@ export default function Model() {
   const handleControlsChange = () => {
     // Log or update the camera position when the controls change
     const newPosition = controls.current.object.position.toArray();
-    console.log("New Camera Position:", newPosition);
+    // console.log("New Camera Position:", newPosition);
   };
 
   return (
