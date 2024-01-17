@@ -1,4 +1,5 @@
 "use client";
+import { RoomOld } from "./room-old";
 import { Room } from "./room";
 import { useEffect, useState, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
@@ -22,47 +23,28 @@ export default function Model() {
     cool: "#86B6F6",
   });
 
-  const [bedClicked, setBedClicked] = useState(false);
   const controls = useRef();
-  console.log(bedClicked);
 
-  useEffect(() => {
-    if (bedClicked) {
-    } else {
-    }
-  }, [bedClicked]);
+  const [selectedObject, setSelectedObject] = useState(null);
+  const [hoveredObject, setHoveredObject] = useState(null);
 
-  // useEffect(() => {
-  //   if (bedClicked) {
-  //     // Assuming you want to zoom to the bed position
-  //     controls.current.object.position.set(-0.03533639268780575, 2.6994317192051405, 0.14565762923194314).toArray();
-  //     controls.current.update();
-  //   } else {
-  //     // Assuming you want to reset to a default position
-  //     controls.current?.object.position.set(5, 4, -5);
-  //     controls.current?.update();
-  //   }
-  // }, [bedClicked]);
-
-  const handleBedClick = (value) => {
-    setBedClicked(value);
+  const handleObjectClick = (object) => {
+    setSelectedObject(object);
   };
 
-  const handleControlsChange = () => {
-    // Log or update the camera position when the controls change
-    const newPosition = controls.current.object.position.toArray();
-    // console.log("New Camera Position:", newPosition);
+  const handleObjectHover = (object) => {
+    setHoveredObject(object);
   };
 
   return (
-    <Canvas camera={{ position: [5, 4, -5] }}>
+    <Canvas camera={{ position: [4, 5, -3] }}>
       {/* <Sky scale={1000} sunPosition={[2, 0.4, 10]} /> */}
       {/* <fog attach="fog" args={['#d4d4d4', 5, 18]} /> */}
       <Suspense fallback={null}>
-        {/* <ambientLight intensity={1} /> */}
-        {/* <directionalLight intensity={0.2} position={[2, 2, 0]} /> */}
-        {/* <pointLight intensity={60} position={[0, 5, 0]} color={color.warm}/>
-            {/* <spotLight intensity={5} position={[0.5, 5, 3]} /> */}
+        {/* <ambientLight intensity={1} />
+        <directionalLight intensity={0.2} position={[2, 2, 0]} />
+        <pointLight intensity={60} position={[0, 5, 0]} color={color.warm} />
+        <spotLight intensity={5} position={[0.5, 5, 3]} /> */}
         <Selection>
           <EffectComposer multisampling={0} autoClear={false}>
             <SSAO
@@ -72,8 +54,9 @@ export default function Model() {
               color="black"
             />
             <Outline
-              visibleEdgeColor={bedClicked ? "green" : "red"}
-              hiddenEdgeColor={bedClicked ? "green" : "red"}
+              // selected={selectedObject !== null}
+              visibleEdgeColor={selectedObject ? "green" : "green"}
+              hiddenEdgeColor={selectedObject ? "green" : "green"}
               blur
               width={1000}
               edgeStrength={100}
@@ -81,23 +64,15 @@ export default function Model() {
             <SMAA />
           </EffectComposer>
           <Bounds margin={1.2} damping={0}>
-            <Room onBedClick={handleBedClick} />
+            <Room
+              onObjectClick={handleObjectClick}
+              onObjectHover={handleObjectHover}
+            />
           </Bounds>
         </Selection>
-        <OrbitControls onChange={handleControlsChange} ref={controls} />
+        <OrbitControls />
         <Environment preset="city" background blur={1} />
       </Suspense>
-
-      {/* <GizmoHelper
-            alignment="bottom-right"
-            margin={[80, 80]}
-            // renderPriority={2}
-          >
-            <GizmoViewport
-              axisColors={["hotpink", "aquamarine", "#3498DB"]}
-              labelColor="black"
-            />
-          </GizmoHelper> */}
     </Canvas>
   );
 }

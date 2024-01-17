@@ -20,6 +20,8 @@
     "@react-three/postprocessing": "^2.15.11",
     "@tremor/react": "^3.12.2",
     "@tweenjs/tween.js": "^21.0.0",
+    "date-fns": "^3.2.0",
+    "date-fns-tz": "^2.0.0",
     "leva": "^0.9.35",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.43",

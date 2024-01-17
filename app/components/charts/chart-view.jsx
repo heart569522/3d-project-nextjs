@@ -4,21 +4,43 @@ import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
 import { useDrawingArea } from "@mui/x-charts/hooks";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { BarChart } from "@mui/x-charts/BarChart";
+import { getAllData } from "../../lib/bpsDataActions";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import {
-  GetAPI1,
-  GetAPI2,
-  GetAPI3,
-  GetAPI4,
-  GetAPI5,
-  GetAPI6,
-} from "../../lib/bpsDataActions";
+  addDays,
+  startOfDay,
+  startOfWeek,
+  startOfMonth,
+  startOfYear,
+} from "date-fns";
 
-const data = [
-  { id: 0, value: 100, label: "series A" },
-  { id: 1, value: 100, label: "series B" },
+const theme = createTheme({
+  palette: {
+    primary: {
+      light: "#757ce8",
+      main: "#3f50b5",
+      dark: "#002884",
+      contrastText: "#fff",
+    },
+    secondary: {
+      light: "#ff7961",
+      main: "#f44336",
+      dark: "#ba000d",
+      contrastText: "#000",
+    },
+    mode: "dark",
+  },
+});
+
+const data1 = [
+  { label: "Group A", value: 400 },
+  { label: "Group B", value: 300 },
 ];
 
-
+const data2 = [
+  { label: "Label 1", value: 65 },
+  { label: "Label 2", value: 30 },
+];
 
 const uData = [4000, 3000, 2000, 2780, 1890, 2390, 3490];
 const pData = [2400, 1398, 9800, 3908, 4800, 3800, 4300];
@@ -34,16 +56,6 @@ const xLabels = [
 
 const dataLine = [90, 20, 50, 40, 80, 10];
 const xData = ["Page A", "Page B", "Page C", "Page D", "Page E", "Page F"];
-
-const chartSetting = {
-  xAxis: [
-    {
-      label: "API Length",
-    },
-  ],
-  width: 300,
-  height: 300,
-};
 
 const dataset = [
   {
@@ -134,68 +146,200 @@ function PieCenterLabel({ children }) {
   );
 }
 
+const testData = [
+  { id: 0, value: 50, label: "test 1" },
+  { id: 1, value: 20, label: "test 2" },
+  { id: 2, value: 60, label: "test 3" },
+];
+
 export default function ChartView() {
-  const [chartData, setChartData] = useState({
-    data1: 0,
-    data2: 0,
-    data3: 0,
-    data4: 0,
-    data5: 0,
-    data6: 0,
+  const [selectedOption, setSelectedOption] = useState("daily");
+
+  const [chartData5, setChartData5] = useState([{}]);
+  const [chartData6, setChartData6] = useState([{}]);
+
+  const handleSelectChange = (e) => {
+    setSelectedOption(e.target.value);
+  };
+
+  const [data, setData] = useState({
+    data1: [],
+    data2: [],
+    data3: [],
+    data4: [],
+    data5: [],
+    data6: [],
   });
+  console.log("🚀 ~ ChartView ~ data:", data)
 
   const fetchData = async () => {
     try {
+      console.log(`Fetching ${selectedOption} data...`);
+
       const [res1, res2, res3, res4, res5, res6] = await Promise.all([
-        GetAPI1(),
-        GetAPI2(),
-        GetAPI3(),
-        GetAPI4(),
-        GetAPI5(),
-        GetAPI6(),
+        getAllData("api1"),
+        getAllData("api2"),
+        getAllData("api3"),
+        getAllData("api4"),
+        getAllData("api5"),
+        getAllData("api6"),
       ]);
-      setChartData({
-        data1: res1.length,
-        data2: res2.length,
-        data3: res3.length,
-        data4: res4.length,
-        data5: res5.length,
-        data6: res6.length,
+
+      const filteredData1 = filterDataByTime(res1, selectedOption);
+      const filteredData2 = filterDataByTime(res2, selectedOption);
+      const filteredData3 = filterDataByTime(res3, selectedOption);
+      const filteredData4 = filterDataByTime(res4, selectedOption);
+      const filteredData5 = filterDataByTime(res5, selectedOption);
+      const filteredData6 = filterDataByTime(res6, selectedOption);
+
+      setData({
+        data1: filteredData1,
+        data2: filteredData2,
+        data3: filteredData3,
+        data4: filteredData4,
+        data5: filteredData5,
+        data6: filteredData6,
       });
     } catch (error) {
       console.error(error);
     }
   };
 
+  const filterDataByTime = (data, timeRange) => {
+    const currentDate = new Date();
+
+    switch (timeRange) {
+      case "daily":
+        return data.filter((item) => {
+          const recordDate = new Date(item.record_at);
+          // console.log("🚀 ~ returndata.filter ~ recordDate:", recordDate);
+          const resultRecordDate = `${recordDate.getDate() + 1}/${
+            recordDate.getMonth() + 1
+          }/${recordDate.getFullYear()}`;
+          const resultCurrentDate = `${currentDate.getDate()}/${
+            currentDate.getMonth() + 1
+          }/${currentDate.getFullYear()}`;
+          return resultRecordDate === resultCurrentDate;
+        });
+
+      case "weekly":
+        const lastWeekDate = addDays(startOfWeek(currentDate), -7);
+        return data.filter((item) => new Date(item.record_at) >= lastWeekDate);
+
+      case "monthly":
+        const startOfMonthDate = startOfMonth(currentDate);
+        return data.filter(
+          (item) => new Date(item.record_at) >= startOfMonthDate
+        );
+
+      case "yearly":
+        const startOfYearDate = startOfYear(currentDate);
+        return data.filter(
+          (item) => new Date(item.record_at) >= startOfYearDate
+        );
+
+      case "all":
+        return data;
+
+      default:
+        return data;
+    }
+  };
+
   useEffect(() => {
     fetchData();
 
-    const interval = setInterval(fetchData, 20000);
+    const interval = setInterval(fetchData, 100000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedOption]);
 
-  const testData = [
-    { id: 0, value: chartData.data1, label: "API 1" },
-    { id: 1, value: chartData.data2, label: "API 2" },
-    { id: 2, value: chartData.data3, label: "API 3" },
-    { id: 3, value: chartData.data4, label: "API 4" },
-    { id: 4, value: chartData.data5, label: "API 5" },
-    { id: 5, value: chartData.data6, label: "API 6" },
-  ];
+  const calculateMean = (type, data, dataLength) => {
+    let sValues;
+
+    switch (type) {
+      case "api5":
+        sValues = Array.from({ length: dataLength }, (_, index) =>
+          data.map((entry) => entry[`p${String(index + 1).padStart(3, '0')}`])
+        );
+        break;
+
+      case "api6":
+        sValues = Array.from({ length: dataLength }, (_, index) =>
+          data.map((entry) => entry[`s${201 + index}`])
+        );
+        break;
+
+      default:
+        // Handle a default case if necessary
+        break;
+    }
+
+    const meanValues = sValues.map((values) => {
+      const filteredValues = values
+        .filter((value) => typeof value === "number" && !isNaN(value))
+        .filter((value) => value !== null); // Filter out null values
+
+      if (filteredValues.length === 0) {
+        return "0.00"; // or any default value if there are no valid values
+      }
+
+      const sum = filteredValues.reduce((acc, value) => acc + value, 0);
+      const mean = sum / filteredValues.length || 0;
+      return mean.toFixed(2);
+    });
+
+    return meanValues;
+  };
+
+  useEffect(() => {
+    // Recalculate chartData6 when data changes
+    const meanData5 = calculateMean("api5", data.data5, 20);
+    const meanData6 = calculateMean("api6", data.data6, 10);
+    const updatedChartData5 = meanData5.map((value, index) => ({
+      label: `p${String(index + 1).padStart(3, '0')}`,
+      value: Number(value),
+    }));
+    const updatedChartData6 = meanData6.map((value, index) => ({
+      label: `s${201 + index}`,
+      value: Number(value),
+    }));
+
+    // Update the chart data
+    setChartData5(updatedChartData5);
+    setChartData6(updatedChartData6);
+  }, [data]);
+
+  const TOTAL = chartData6.map((item) => item.value).reduce((a, b) => a + b, 0);
+
+  const getArcLabel = (params) => {
+    const percent = params.value / TOTAL;
+    return `${(percent * 100).toFixed(2)}%`;
+  };
 
   return (
-    <div>
+    <ThemeProvider theme={theme}>
+      {/* header */}
+      <div className="header-container top-0 h-[100px]">
+        <div className="bg-[#00000080] p-2 rounded-sm">
+          <div className="flex justify-center items-center">
+            <h1 className="text-center py-6 text-white font-semibold text-2xl">
+              BPS
+            </h1>
+          </div>
+        </div>
+      </div>
+
       {/* left side */}
-      <div className="chart-container-ltr top-0 h-[400px]">
+      {/* <div className="chart-container-ltr top-[100px] h-[450px]">
         <div className="chart-content-ltr">
-          <div className="bg-[#ffffff70] p-2 rounded-sm">
+          <div className="bg-[#00000080] p-2 rounded-sm">
             <label className="text-xl font-bold text-white">Pie Chart</label>
             <div className="contents">
               <PieChart
                 series={[
                   {
-                    data,
+                    data: data1,
                     innerRadius: 60,
                     outerRadius: 100,
                     paddingAngle: 0,
@@ -223,7 +367,7 @@ export default function ChartView() {
               <PieChart
                 series={[
                   {
-                    data,
+                    data: data2,
                     innerRadius: 60,
                     outerRadius: 100,
                     paddingAngle: 0,
@@ -252,7 +396,7 @@ export default function ChartView() {
               <PieChart
                 series={[
                   {
-                    data,
+                    data: data1,
                     innerRadius: 60,
                     outerRadius: 100,
                     paddingAngle: 0,
@@ -280,12 +424,13 @@ export default function ChartView() {
           </div>
         </div>
       </div>
-      <div className="chart-container-ltr top-[390px] h-[460px]">
+      <div className="chart-container-ltr top-[540px] h-[520px]">
         <div className="chart-content-ltr">
-          <div className="bg-[#ffffff70] p-2 rounded-sm">
+          <div className="bg-[#00000080] p-2 rounded-sm">
             <label className="text-xl font-bold text-white">Line Chart</label>
             <div className="contents">
               <LineChart
+                // sx={{}}
                 width={290}
                 height={200}
                 series={[
@@ -315,41 +460,114 @@ export default function ChartView() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* right side */}
-      <div className="chart-container-rtl top-0 h-[360px]">
+      <div className="chart-container-rtl top-[100px] h-[900px]">
         <div className="chart-content-rtl">
-          <div className="content-ltr bg-[#ffffff70] p-2 rounded-sm">
-            <label className="text-xl font-bold text-white">Bar Chart</label>
+          <div className="content-ltr bg-[#00000080] p-2 rounded-sm">
+            <div className="flex justify-between items-center">
+              <label className="text-xl font-bold text-white">Test Chart</label>
+              <div>
+                <select
+                  id="countries"
+                  className="bg-[#00000050] border border-translate text-white text-sm rounded-sm block p-2.5"
+                  name="dayType"
+                  value={selectedOption}
+                  onChange={handleSelectChange}
+                >
+                  <option className="bg-gray-800" value="daily" selected>
+                    รายวัน
+                  </option>
+                  <option className="bg-gray-800" value="weekly">
+                    รายสัปดาห์
+                  </option>
+                  <option className="bg-gray-800" value="monthly">
+                    รายเดือน
+                  </option>
+                  <option className="bg-gray-800" value="yearly">
+                    รายปี
+                  </option>
+                  <option className="bg-gray-800" value="all">
+                    ทั้งหมด
+                  </option>
+                </select>
+              </div>
+            </div>
+
             <div className="contents">
               <BarChart
-                dataset={testData}
+                dataset={chartData5}
+                xAxis={[
+                  {
+                    label: "API Length",
+                  },
+                ]}
                 yAxis={[{ scaleType: "band", dataKey: "label" }]}
                 series={[
                   {
                     dataKey: "value",
                     label: "label",
-                  }
+                  },
                 ]}
                 layout="horizontal"
-                {...chartSetting}
+                width={300}
+                height={320}
+              />
+            </div>
+            <div className="contents">
+              <PieChart
+                series={[
+                  {
+                    data: chartData5,
+                    arcLabel: getArcLabel,
+                  },
+                ]}
+                sx={{
+                  [`& .${pieArcLabelClasses.root}`]: {
+                    fill: "white",
+                    fontSize: 16,
+                  },
+                }}
+                width={350}
+                height={280}
+                slotProps={{
+                  legend: { hidden: true },
+                }}
+                margin={{ left: 15 }}
+              />
+            </div>
+            <div className="contents">
+              <LineChart
+                dataset={chartData5}
+                width={290}
+                height={180}
+                series={[{ dataKey: "value" }]}
+                xAxis={[{ dataKey: "label", scaleType: "point" }]}
+                margin={{ top: 20 }}
               />
             </div>
           </div>
         </div>
       </div>
-      <div className="chart-container-rtl top-[350px] h-[320px]">
+      {/* <div className="chart-container-rtl top-[450px] h-[320px]">
         <div className="chart-content-rtl">
-          <div className="content-ltr bg-[#ffffff70] p-2 rounded-sm">
+          <div className="content-ltr bg-[#00000080] p-2 rounded-sm">
             <label className="text-xl font-bold text-white">Pie Chart</label>
             <div className="contents">
               <PieChart
                 series={[
                   {
                     data: testData,
+                    arcLabel: getArcLabel,
                   },
                 ]}
+                sx={{
+                  [`& .${pieArcLabelClasses.root}`]: {
+                    fill: "white",
+                    fontSize: 16,
+                  },
+                }}
                 width={350}
                 height={260}
                 slotProps={{
@@ -361,9 +579,9 @@ export default function ChartView() {
           </div>
         </div>
       </div>
-      <div className="chart-container-rtl top-[660px] h-[190px]">
+      <div className="chart-container-rtl top-[760px] h-[230px]">
         <div className="chart-content-rtl">
-          <div className="content-ltr bg-[#ffffff70] p-2 rounded-sm">
+          <div className="content-ltr bg-[#00000080] p-2 rounded-sm">
             <label className="text-xl font-bold text-white">Line Chart</label>
             <div className="contents">
               <LineChart
@@ -377,7 +595,7 @@ export default function ChartView() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </div> */}
+    </ThemeProvider>
   );
 }

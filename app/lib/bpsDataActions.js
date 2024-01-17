@@ -33,3 +33,9 @@ export async function GetAPI6() {
 
     return res.json()
 }
+
+export async function getAllData(pathName) {
+    const res = await fetch(`${process.env.BPS_API_URL}/${pathName}`)
+
+    return res.json()
+}
