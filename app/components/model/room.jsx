@@ -6,9 +6,11 @@ Command: npx gltfjsx@6.2.16 ./public/model3d/room.glb
 import React, { useRef, useState } from "react";
 import { useGLTF, Html } from "@react-three/drei";
 import { Select } from "@react-three/postprocessing";
-import * as THREE from "three";
+import convertToDateTimeText from "@/app/lib/service";
 
 export function Room(props) {
+  const { chartData } = props;
+
   const { nodes, materials } = useGLTF("/model3d/room.glb");
   const [hover, setHover] = useState();
   const [click, setClick] = useState({
@@ -59,7 +61,25 @@ export function Room(props) {
             >
               {click.box && (
                 <Html distanceFactor={15}>
-                  <div className="content">Box</div>
+                  <div className="content">
+                    <label className="font-bold underline text-lg">API5</label>
+                    {!chartData.chartData5.length == 0 ? (
+                      <>
+                        {chartData.chartData5.map((item, i) => (
+                          <div className="grid grid-cols-2" key={i}>
+                            <div className="flex justify-start">
+                              <label>{item.label}: </label>
+                            </div>
+                            <div className="flex justify-start">
+                              <p>{item.value == null ? "null" : item.value}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    ) : (
+                      <p className="text-red-600">Can not load data!</p>
+                    )}
+                  </div>
                 </Html>
               )}
             </mesh>
@@ -112,7 +132,25 @@ export function Room(props) {
             />
             {click.tv && (
               <Html distanceFactor={15}>
-                <div className="content">TV</div>
+                <div className="content">
+                  <label className="font-bold underline text-lg">API6</label>
+                  {!chartData.chartData6.length == 0 ? (
+                    <>
+                      {chartData.chartData6.map((item, i) => (
+                        <div className="grid grid-cols-2" key={i}>
+                          <div className="flex justify-start">
+                            <label>{item.label}: </label>
+                          </div>
+                          <div className="flex justify-start">
+                            <p>{item.value == null ? "null" : item.value}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <p className="text-red-600">Can not load data!</p>
+                  )}
+                </div>
               </Html>
             )}
           </group>

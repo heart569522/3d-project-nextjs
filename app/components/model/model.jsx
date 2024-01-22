@@ -1,6 +1,6 @@
 "use client";
 import { RoomOld } from "./room-old";
-import { Room } from "./room";
+import { Room } from "./bps-room";
 import { useEffect, useState, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { Environment, Sky, OrbitControls, Bounds } from "@react-three/drei";
@@ -13,7 +13,7 @@ import {
   Outline,
 } from "@react-three/postprocessing";
 
-export default function Model() {
+export default function Model({ lastData }) {
   const [color, setColor] = useState({
     red: "#FF0000",
     orange: "#FF8700",
@@ -65,6 +65,7 @@ export default function Model() {
           </EffectComposer>
           <Bounds margin={1.2} damping={0}>
             <Room
+              lastData={lastData}
               onObjectClick={handleObjectClick}
               onObjectHover={handleObjectHover}
             />

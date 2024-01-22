@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { useState, useEffect } from "react";
 import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
 import { useDrawingArea } from "@mui/x-charts/hooks";
@@ -13,6 +14,12 @@ import {
   startOfMonth,
   startOfYear,
 } from "date-fns";
+import { styled } from "@mui/material/styles";
+import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
+import Fade from "@mui/material/Fade";
+import ToggleOffTwoToneIcon from "@mui/icons-material/ToggleOffTwoTone";
+import ToggleOnTwoToneIcon from "@mui/icons-material/ToggleOnTwoTone";
+import CloudOffTwoToneIcon from "@mui/icons-material/CloudOffTwoTone";
 
 const theme = createTheme({
   palette: {
@@ -31,6 +38,27 @@ const theme = createTheme({
     mode: "dark",
   },
 });
+
+const HtmlTooltip = styled(({ className, ...props }) => (
+  <Tooltip
+    {...props}
+    classes={{ popper: className }}
+    TransitionComponent={Fade}
+    TransitionProps={{ timeout: 300 }}
+  />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: "#f5f5f9",
+    color: "rgba(0, 0, 0, 0.87)",
+    maxWidth: 220,
+    fontSize: theme.typography.pxToRem(12),
+    border: "1px solid #dadde9",
+  },
+}));
+
+const fieldData2Labels = ["IN1", "IN2", "IN3", "IN4"];
+const fieldData3Labels = ["IN1", "IN2", "IN3", "IN4", "OUT4"];
+const fieldData4Labels = ["IN1", "IN2", "IN3", "IN4"];
 
 const data1 = [
   { label: "Group A", value: 400 },
@@ -152,16 +180,23 @@ const testData = [
   { id: 2, value: 60, label: "test 3" },
 ];
 
-export default function ChartView() {
-  const [selectedOption, setSelectedOption] = useState("daily");
+export function DataNULL({ iconSize }) {
+  return (
+    <HtmlTooltip
+      title={
+        <React.Fragment>
+          <p className="underline font-semibold text-sm">Error!</p>
+          {"Can not get data or Data is NULL"}
+        </React.Fragment>
+      }
+      placement="right"
+    >
+      <CloudOffTwoToneIcon className={`w-${iconSize} h-${iconSize}  text-red-500`} />
+    </HtmlTooltip>
+  );
+}
 
-  const [chartData5, setChartData5] = useState([{}]);
-  const [chartData6, setChartData6] = useState([{}]);
-
-  const handleSelectChange = (e) => {
-    setSelectedOption(e.target.value);
-  };
-
+export default function ChartView({ isLastData }) {
   const [data, setData] = useState({
     data1: [],
     data2: [],
@@ -170,11 +205,52 @@ export default function ChartView() {
     data5: [],
     data6: [],
   });
-  console.log("🚀 ~ ChartView ~ data:", data)
+
+  const [selectedOption, setSelectedOption] = useState("daily");
+
+  const [lastData, setLastData] = useState({
+    data1: null,
+    data2: null,
+    data3: null,
+    data4: null,
+    data5: null,
+    data6: null,
+  });
+
+  const filterLastData = (data) => {
+    const filteredData = {};
+
+    for (const key in data) {
+      if (data[key].length > 0) {
+        filteredData[key] = data[key][data[key].length - 1];
+      }
+    }
+
+    return filteredData;
+  };
+
+  const [chartData5, setChartData5] = useState([{}]);
+  const [chartData6, setChartData6] = useState([{}]);
+
+  useEffect(() => {
+    console.log("lastData: ", lastData);
+    isLastData(
+      lastData.data1,
+      lastData.data2,
+      lastData.data3,
+      lastData.data4,
+      lastData.data5,
+      lastData.data6
+    );
+  }, [lastData]);
+
+  const handleSelectChange = (e) => {
+    setSelectedOption(e.target.value);
+  };
 
   const fetchData = async () => {
     try {
-      console.log(`Fetching ${selectedOption} data...`);
+      console.log(`Fetching data...`);
 
       const [res1, res2, res3, res4, res5, res6] = await Promise.all([
         getAllData("api1"),
@@ -185,35 +261,59 @@ export default function ChartView() {
         getAllData("api6"),
       ]);
 
-      const filteredData1 = filterDataByTime(res1, selectedOption);
-      const filteredData2 = filterDataByTime(res2, selectedOption);
-      const filteredData3 = filterDataByTime(res3, selectedOption);
-      const filteredData4 = filterDataByTime(res4, selectedOption);
-      const filteredData5 = filterDataByTime(res5, selectedOption);
-      const filteredData6 = filterDataByTime(res6, selectedOption);
+      // const filteredData1 = filterDataByTime(res1, selectedOption);
+      // const filteredData2 = filterDataByTime(res2, selectedOption);
+      // const filteredData3 = filterDataByTime(res3, selectedOption);
+      // const filteredData4 = filterDataByTime(res4, selectedOption);
+      // const filteredData5 = filterDataByTime(res5, selectedOption);
+      // const filteredData6 = filterDataByTime(res6, selectedOption);
 
+      // setData({
+      //   data1: filteredData1,
+      //   data2: filteredData2,
+      //   data3: filteredData3,
+      //   data4: filteredData4,
+      //   data5: filteredData5,
+      //   data6: filteredData6,
+      // });
       setData({
-        data1: filteredData1,
-        data2: filteredData2,
-        data3: filteredData3,
-        data4: filteredData4,
-        data5: filteredData5,
-        data6: filteredData6,
+        data1: res1,
+        data2: res2,
+        data3: res3,
+        data4: res4,
+        data5: res5,
+        data6: res6,
       });
+
+      const lastDataFiltered = filterLastData({
+        data1: res1,
+        data2: res2,
+        data3: res3,
+        data4: res4,
+        data5: res5,
+        data6: res6,
+      });
+
+      setLastData(lastDataFiltered);
     } catch (error) {
       console.error(error);
     }
   };
 
   const filterDataByTime = (data, timeRange) => {
-    const currentDate = new Date();
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Bangkok",
+    });
+    const dateNow = formatter.format(new Date());
+    const currentDate = new Date(dateNow);
+    console.log("🚀 ~ filterDataByTime ~ currentDate:", currentDate);
 
     switch (timeRange) {
       case "daily":
         return data.filter((item) => {
-          const recordDate = new Date(item.record_at);
-          // console.log("🚀 ~ returndata.filter ~ recordDate:", recordDate);
-          const resultRecordDate = `${recordDate.getDate() + 1}/${
+          const formattedDate = formatter.format(new Date(item.record_at));
+          const recordDate = new Date(formattedDate);
+          const resultRecordDate = `${recordDate.getDate()}/${
             recordDate.getMonth() + 1
           }/${recordDate.getFullYear()}`;
           const resultCurrentDate = `${currentDate.getDate()}/${
@@ -260,7 +360,7 @@ export default function ChartView() {
     switch (type) {
       case "api5":
         sValues = Array.from({ length: dataLength }, (_, index) =>
-          data.map((entry) => entry[`p${String(index + 1).padStart(3, '0')}`])
+          data.map((entry) => entry[`p${String(index + 1).padStart(3, "0")}`])
         );
         break;
 
@@ -278,10 +378,10 @@ export default function ChartView() {
     const meanValues = sValues.map((values) => {
       const filteredValues = values
         .filter((value) => typeof value === "number" && !isNaN(value))
-        .filter((value) => value !== null); // Filter out null values
+        .filter((value) => value !== null);
 
       if (filteredValues.length === 0) {
-        return "0.00"; // or any default value if there are no valid values
+        return null;
       }
 
       const sum = filteredValues.reduce((acc, value) => acc + value, 0);
@@ -293,19 +393,17 @@ export default function ChartView() {
   };
 
   useEffect(() => {
-    // Recalculate chartData6 when data changes
     const meanData5 = calculateMean("api5", data.data5, 20);
     const meanData6 = calculateMean("api6", data.data6, 10);
     const updatedChartData5 = meanData5.map((value, index) => ({
-      label: `p${String(index + 1).padStart(3, '0')}`,
-      value: Number(value),
+      label: `p${String(index + 1).padStart(3, "0")}`,
+      value: value == null ? value : Number(value),
     }));
     const updatedChartData6 = meanData6.map((value, index) => ({
       label: `s${201 + index}`,
-      value: Number(value),
+      value: value == null ? value : Number(value),
     }));
 
-    // Update the chart data
     setChartData5(updatedChartData5);
     setChartData6(updatedChartData6);
   }, [data]);
@@ -331,136 +429,76 @@ export default function ChartView() {
       </div>
 
       {/* left side */}
-      {/* <div className="chart-container-ltr top-[100px] h-[450px]">
+      <div className="chart-container-ltr top-[100px] h-full">
         <div className="chart-content-ltr">
-          <div className="bg-[#00000080] p-2 rounded-sm">
-            <label className="text-xl font-bold text-white">Pie Chart</label>
-            <div className="contents">
-              <PieChart
-                series={[
-                  {
-                    data: data1,
-                    innerRadius: 60,
-                    outerRadius: 100,
-                    paddingAngle: 0,
-                    cornerRadius: 0,
-                    startAngle: -90,
-                    endAngle: 90,
-                    cy: 100,
-                  },
-                ]}
-                slotProps={{
-                  legend: { hidden: true },
-                }}
-                height={100}
-                margin={{ left: 95 }}
-              >
-                <PieCenterLabel>25</PieCenterLabel>
-              </PieChart>
-              <div className="flex justify-around mb-4 text-white font-semibold">
-                <p>test</p>
-                <p>HAHAHA</p>
-                <p>test</p>
+          <div className="bg-[#00000080] flex flex-col gap-2 rounded-sm">
+            <div className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer">
+              <label className="text-xl font-bold text-white">API1</label>
+              <div className="flex justify-center items-center gap-x-2 my-2">
+                <p className="text-white font-medium">OUT1 :</p>
+                {lastData?.data1?.OUT1 == null ? (
+                  <DataNULL iconSize="12"/>
+                ) : lastData.data1.OUT1 == 0 ? (
+                  <ToggleOffTwoToneIcon className="w-14 h-14 text-gray-400" />
+                ) : (
+                  <ToggleOnTwoToneIcon className="w-14 h-14  text-amber-200" />
+                )}
               </div>
             </div>
-            <div className="contents">
-              <PieChart
-                series={[
-                  {
-                    data: data2,
-                    innerRadius: 60,
-                    outerRadius: 100,
-                    paddingAngle: 0,
-                    cornerRadius: 0,
-                    startAngle: -90,
-                    endAngle: 90,
-                    cy: 100,
-                  },
-                ]}
-                slotProps={{
-                  legend: { hidden: true },
-                }}
-                height={100}
-                margin={{ left: 95 }}
-                colors={["#ff3030", "#6e30ff"]}
-              >
-                <PieCenterLabel>50</PieCenterLabel>
-              </PieChart>
-              <div className="flex justify-around mb-4 text-white font-semibold">
-                <p>test</p>
-                <p>HELLO</p>
-                <p>test</p>
+            <div className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer">
+              <label className="text-xl font-bold text-white">API2</label>
+              <div className="flex justify-around items-center gap-x-2 my-2">
+                {fieldData2Labels.map((fieldLabel, index) => (
+                  <div className="block text-center" key={index}>
+                    {lastData?.data2?.[fieldLabel] == null ? (
+                      <DataNULL iconSize="10"/>
+                    ) : lastData.data2[fieldLabel] === 0 ? (
+                      <ToggleOffTwoToneIcon className="w-12 h-12 text-gray-400" />
+                    ) : (
+                      <ToggleOnTwoToneIcon className="w-12 h-12 text-amber-200" />
+                    )}
+                    <p className="text-white font-medium mt-1">{fieldLabel}</p>
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="contents">
-              <PieChart
-                series={[
-                  {
-                    data: data1,
-                    innerRadius: 60,
-                    outerRadius: 100,
-                    paddingAngle: 0,
-                    cornerRadius: 0,
-                    startAngle: -90,
-                    endAngle: 90,
-                    cy: 100,
-                  },
-                ]}
-                slotProps={{
-                  legend: { hidden: true },
-                }}
-                height={100}
-                margin={{ left: 95 }}
-                colors={["green", "yellow"]}
-              >
-                <PieCenterLabel>50</PieCenterLabel>
-              </PieChart>
-              <div className="flex justify-around mb-2 text-white font-semibold">
-                <p>test</p>
-                <p>HELLO</p>
-                <p>test</p>
+            <div className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer">
+              <label className="text-xl font-bold text-white">API3</label>
+              <div className="flex justify-around items-center gap-x-2 my-2">
+                {fieldData3Labels.map((fieldLabel, index) => (
+                  <div className="block text-center" key={index}>
+                    {lastData?.data3?.[fieldLabel] == null ? (
+                      <DataNULL iconSize="9"/>
+                    ) : lastData.data3[fieldLabel] === 0 ? (
+                      <ToggleOffTwoToneIcon className="w-10 h-10 text-gray-400" />
+                    ) : (
+                      <ToggleOnTwoToneIcon className="w-10 h-10 text-amber-200" />
+                    )}
+                    <p className="text-white font-medium mt-1">{fieldLabel}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer">
+              <label className="text-xl font-bold text-white">API4</label>
+              <div className="flex justify-around items-center gap-x-2 my-2">
+                {fieldData4Labels.map((fieldLabel, index) => (
+                  <div className="block text-center" key={index}>
+                    {lastData?.data4?.[fieldLabel] == null ? (
+                      <DataNULL iconSize="10"/>
+                    ) : lastData.data4[fieldLabel] === 0 ? (
+                      <ToggleOffTwoToneIcon className="w-12 h-12 text-gray-400" />
+                    ) : (
+                      <ToggleOnTwoToneIcon className="w-12 h-12 text-amber-200" />
+                    )}
+                    <p className="text-white font-medium mt-1">{fieldLabel}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="chart-container-ltr top-[540px] h-[520px]">
-        <div className="chart-content-ltr">
-          <div className="bg-[#00000080] p-2 rounded-sm">
-            <label className="text-xl font-bold text-white">Line Chart</label>
-            <div className="contents">
-              <LineChart
-                // sx={{}}
-                width={290}
-                height={200}
-                series={[
-                  { data: pData, label: "pv" },
-                  { data: uData, label: "uv" },
-                ]}
-                xAxis={[{ scaleType: "point", data: xLabels }]}
-              />
-            </div>
-            <div className="contents">
-              <LineChart
-                width={290}
-                height={160}
-                series={[{ data: dataLine }]}
-                xAxis={[{ data: xData, scaleType: "point" }]}
-                margin={{ top: 10 }}
-              />
-            </div>
-            <div className="contents">
-              <LineChart
-                width={290}
-                height={160}
-                series={[{ data: dataLine }]}
-                xAxis={[{ data: xData, scaleType: "point" }]}
-                margin={{ top: 10 }}
-              />
-            </div>
-          </div>
-        </div>
-      </div> */}
 
       {/* right side */}
       <div className="chart-container-rtl top-[100px] h-[900px]">
