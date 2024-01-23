@@ -14,7 +14,7 @@ export default function Home() {
     lastData5: [{}],
     lastData6: [{}],
   });
-  console.log("🚀 ~ Home ~ lastData:", lastData)
+  console.log("🚀 ~ Home ~ lastData:", lastData);
 
   const updateChartData = (
     newLastData1,
@@ -35,29 +35,11 @@ export default function Home() {
   };
 
   return (
-    <div className="">
-      <div className="grid grid-cols-1 h-screen">
-        <div className="relative">
-          <Model lastData={lastData} />
-          <ChartView isLastData={updateChartData} />
-        </div>
+    <div className="grid grid-cols-1 h-screen">
+      <div className="relative">
+        <Model lastData={lastData} />
+        <ChartView isLastData={updateChartData} />
       </div>
-      {/* <div className="my-4 px-4">
-        <h2 className="text-2xl underline text-white mb-2">
-          Data from Ebox API
-        </h2>
-        <div className="grid grid-cols-3 text-white border-2 p-4">
-          <EboxData />
-        </div>
-      </div> */}
-      {/* <div className="my-4 px-4">
-        <h2 className="text-2xl underline text-white mb-2">
-          Data from BPS Backend
-        </h2>
-        <div className="grid grid-cols-3 text-white border-2 p-4">
-          <BpsData />
-        </div>
-      </div> */}
     </div>
   );
 }

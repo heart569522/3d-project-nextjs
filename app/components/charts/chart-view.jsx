@@ -56,107 +56,19 @@ const HtmlTooltip = styled(({ className, ...props }) => (
   },
 }));
 
+const generateLabels = (prefix, start, end) => {
+  return Array.from({ length: end - start + 1 }, (_, index) => {
+    const paddedNumber = (start + index).toString().padStart(3, "0");
+    return `${prefix}${paddedNumber}`;
+  });
+};
+
+const fieldData1Labels = ["OUT1"];
 const fieldData2Labels = ["IN1", "IN2", "IN3", "IN4"];
 const fieldData3Labels = ["IN1", "IN2", "IN3", "IN4", "OUT4"];
 const fieldData4Labels = ["IN1", "IN2", "IN3", "IN4"];
-
-const data1 = [
-  { label: "Group A", value: 400 },
-  { label: "Group B", value: 300 },
-];
-
-const data2 = [
-  { label: "Label 1", value: 65 },
-  { label: "Label 2", value: 30 },
-];
-
-const uData = [4000, 3000, 2000, 2780, 1890, 2390, 3490];
-const pData = [2400, 1398, 9800, 3908, 4800, 3800, 4300];
-const xLabels = [
-  "Page A",
-  "Page B",
-  "Page C",
-  "Page D",
-  "Page E",
-  "Page F",
-  "Page G",
-];
-
-const dataLine = [90, 20, 50, 40, 80, 10];
-const xData = ["Page A", "Page B", "Page C", "Page D", "Page E", "Page F"];
-
-const dataset = [
-  {
-    london: 59,
-    paris: 57,
-    newYork: 86,
-    seoul: 21,
-    month: "Jan",
-  },
-  {
-    london: 50,
-    paris: 52,
-    newYork: 78,
-    seoul: 28,
-    month: "Fev",
-  },
-  {
-    london: 47,
-    paris: 53,
-    newYork: 106,
-    seoul: 41,
-    month: "Mar",
-  },
-  {
-    london: 54,
-    paris: 56,
-    newYork: 92,
-    seoul: 73,
-    month: "Apr",
-  },
-  {
-    london: 57,
-    paris: 69,
-    newYork: 92,
-    seoul: 99,
-    month: "May",
-  },
-  {
-    london: 60,
-    paris: 63,
-    newYork: 103,
-    seoul: 144,
-    month: "June",
-  },
-  {
-    london: 59,
-    paris: 60,
-    newYork: 105,
-    seoul: 319,
-    month: "July",
-  },
-  {
-    london: 65,
-    paris: 60,
-    newYork: 106,
-    seoul: 249,
-    month: "Aug",
-  },
-  {
-    london: 51,
-    paris: 51,
-    newYork: 95,
-    seoul: 131,
-    month: "Sept",
-  },
-  {
-    london: 60,
-    paris: 65,
-    newYork: 97,
-    seoul: 55,
-    month: "Oct",
-  },
-];
+const fieldData5Labels = generateLabels("p", 1, 20);
+const fieldData6Labels = generateLabels("s", 201, 210);
 
 function PieCenterLabel({ children }) {
   const { width, height, left, top } = useDrawingArea();
@@ -174,12 +86,6 @@ function PieCenterLabel({ children }) {
   );
 }
 
-const testData = [
-  { id: 0, value: 50, label: "test 1" },
-  { id: 1, value: 20, label: "test 2" },
-  { id: 2, value: 60, label: "test 3" },
-];
-
 export function DataNULL({ iconSize }) {
   return (
     <HtmlTooltip
@@ -191,7 +97,9 @@ export function DataNULL({ iconSize }) {
       }
       placement="right"
     >
-      <CloudOffTwoToneIcon className={`w-${iconSize} h-${iconSize}  text-red-500`} />
+      <CloudOffTwoToneIcon
+        className={`w-${iconSize} h-${iconSize}  text-red-500`}
+      />
     </HtmlTooltip>
   );
 }
@@ -205,8 +113,28 @@ export default function ChartView({ isLastData }) {
     data5: [],
     data6: [],
   });
+  console.log("🚀 ~ ChartView ~ data:", data);
 
   const [selectedOption, setSelectedOption] = useState("daily");
+  const [rangeData, setRangeData] = useState({
+    data1: null,
+    data2: null,
+    data3: null,
+    data4: null,
+    data5: null,
+    data6: null,
+  });
+  console.log("🚀 ~ ChartView ~ rangeData:", rangeData);
+
+  const [dailyChart, setDailyChart] = useState({
+    data1: null,
+    data2: null,
+    data3: null,
+    data4: null,
+    data5: null,
+    data6: null,
+  });
+  console.log("🚀 ~ ChartView ~ dailyChart:", dailyChart);
 
   const [lastData, setLastData] = useState({
     data1: null,
@@ -216,6 +144,17 @@ export default function ChartView({ isLastData }) {
     data5: null,
     data6: null,
   });
+  console.log("🚀 ~ ChartView ~ lastData:", lastData);
+
+  const [meanData, setMeanData] = useState({
+    data1: null,
+    data2: null,
+    data3: null,
+    data4: null,
+    data5: null,
+    data6: null,
+  });
+  console.log("🚀 ~ ChartView ~ meanData:", meanData);
 
   const filterLastData = (data) => {
     const filteredData = {};
@@ -229,11 +168,7 @@ export default function ChartView({ isLastData }) {
     return filteredData;
   };
 
-  const [chartData5, setChartData5] = useState([{}]);
-  const [chartData6, setChartData6] = useState([{}]);
-
   useEffect(() => {
-    console.log("lastData: ", lastData);
     isLastData(
       lastData.data1,
       lastData.data2,
@@ -261,21 +196,22 @@ export default function ChartView({ isLastData }) {
         getAllData("api6"),
       ]);
 
-      // const filteredData1 = filterDataByTime(res1, selectedOption);
-      // const filteredData2 = filterDataByTime(res2, selectedOption);
-      // const filteredData3 = filterDataByTime(res3, selectedOption);
-      // const filteredData4 = filterDataByTime(res4, selectedOption);
-      // const filteredData5 = filterDataByTime(res5, selectedOption);
-      // const filteredData6 = filterDataByTime(res6, selectedOption);
+      const filteredData1 = filterDataByTime(res1, selectedOption);
+      const filteredData2 = filterDataByTime(res2, selectedOption);
+      const filteredData3 = filterDataByTime(res3, selectedOption);
+      const filteredData4 = filterDataByTime(res4, selectedOption);
+      const filteredData5 = filterDataByTime(res5, selectedOption);
+      const filteredData6 = filterDataByTime(res6, selectedOption);
 
-      // setData({
-      //   data1: filteredData1,
-      //   data2: filteredData2,
-      //   data3: filteredData3,
-      //   data4: filteredData4,
-      //   data5: filteredData5,
-      //   data6: filteredData6,
-      // });
+      setRangeData({
+        data1: filteredData1,
+        data2: filteredData2,
+        data3: filteredData3,
+        data4: filteredData4,
+        data5: filteredData5,
+        data6: filteredData6,
+      });
+
       setData({
         data1: res1,
         data2: res2,
@@ -306,7 +242,6 @@ export default function ChartView({ isLastData }) {
     });
     const dateNow = formatter.format(new Date());
     const currentDate = new Date(dateNow);
-    console.log("🚀 ~ filterDataByTime ~ currentDate:", currentDate);
 
     switch (timeRange) {
       case "daily":
@@ -358,57 +293,154 @@ export default function ChartView({ isLastData }) {
     let sValues;
 
     switch (type) {
+      case "api1":
+        sValues = Array.from({ length: dataLength }, (_, index) => {
+          const fieldNames = ["OUT1"];
+          return data?.map((entry) => entry[fieldNames[index]]);
+        });
+        break;
+
+      case "api2":
+        sValues = Array.from({ length: dataLength }, (_, index) =>
+          data?.map((entry) => entry[`IN${String(index + 1)}`])
+        );
+        break;
+
+      case "api3":
+        sValues = Array.from({ length: dataLength }, (_, index) => {
+          const fieldNames = ["IN1", "IN2", "IN3", "IN4", "OUT4"];
+          return data?.map((entry) => entry[fieldNames[index]]);
+        });
+        break;
+
+      case "api4":
+        sValues = Array.from({ length: dataLength }, (_, index) => {
+          const fieldNames = ["IN1", "IN2", "IN3", "IN4", "p221", "p222"];
+          return data?.map((entry) => entry[fieldNames[index]]);
+        });
+        break;
+
       case "api5":
         sValues = Array.from({ length: dataLength }, (_, index) =>
-          data.map((entry) => entry[`p${String(index + 1).padStart(3, "0")}`])
+          data?.map((entry) => entry[`p${String(index + 1).padStart(3, "0")}`])
         );
         break;
 
       case "api6":
         sValues = Array.from({ length: dataLength }, (_, index) =>
-          data.map((entry) => entry[`s${201 + index}`])
+          data?.map((entry) => entry[`s${201 + index}`])
         );
         break;
 
       default:
-        // Handle a default case if necessary
         break;
     }
 
     const meanValues = sValues.map((values) => {
-      const filteredValues = values
-        .filter((value) => typeof value === "number" && !isNaN(value))
-        .filter((value) => value !== null);
+      if (Array.isArray(values)) {
+        const filteredValues = values
+          .filter((value) => typeof value === "number" && !isNaN(value))
+          .filter((value) => value !== null);
 
-      if (filteredValues.length === 0) {
+        if (filteredValues.length === 0) {
+          return null;
+        }
+
+        const sum = filteredValues.reduce((acc, value) => acc + value, 0);
+        const mean = sum / filteredValues.length || 0;
+        return mean.toFixed(2);
+      } else {
+        console.error("Values is not an array:", values);
         return null;
       }
-
-      const sum = filteredValues.reduce((acc, value) => acc + value, 0);
-      const mean = sum / filteredValues.length || 0;
-      return mean.toFixed(2);
     });
 
     return meanValues;
   };
 
   useEffect(() => {
-    const meanData5 = calculateMean("api5", data.data5, 20);
-    const meanData6 = calculateMean("api6", data.data6, 10);
-    const updatedChartData5 = meanData5.map((value, index) => ({
+    const meanData1 = calculateMean("api1", rangeData.data1, 1);
+    const meanData2 = calculateMean("api2", rangeData.data2, 4);
+    const meanData3 = calculateMean("api3", rangeData.data3, 5);
+    const meanData4 = calculateMean("api4", rangeData.data4, 6);
+    const meanData5 = calculateMean("api5", rangeData.data5, 20);
+    const meanData6 = calculateMean("api6", rangeData.data6, 10);
+
+    const updatedMeanData1 = meanData1.map((value, index) => ({
+      label: ["OUT1"][index],
+      value: value == null ? value : Number(value),
+    }));
+
+    const updatedMeanData2 = meanData2.map((value, index) => ({
+      label: `IN${String(index + 1)}`,
+      value: value == null ? value : Number(value),
+    }));
+
+    const updatedMeanData3 = meanData3.map((value, index) => ({
+      label: ["IN1", "IN2", "IN3", "IN4", "OUT4"][index],
+      value: value == null ? value : Number(value),
+    }));
+
+    const updatedMeanData4 = meanData4.map((value, index) => ({
+      label: ["IN1", "IN2", "IN3", "IN4", "p221", "p222"][index],
+      value: value == null ? value : Number(value),
+    }));
+
+    const updatedMeanData5 = meanData5.map((value, index) => ({
       label: `p${String(index + 1).padStart(3, "0")}`,
       value: value == null ? value : Number(value),
     }));
-    const updatedChartData6 = meanData6.map((value, index) => ({
+
+    const updatedMeanData6 = meanData6.map((value, index) => ({
       label: `s${201 + index}`,
       value: value == null ? value : Number(value),
     }));
 
-    setChartData5(updatedChartData5);
-    setChartData6(updatedChartData6);
-  }, [data]);
+    setMeanData((prevMeanData) => ({
+      ...prevMeanData,
+      data1: updatedMeanData1,
+      data2: updatedMeanData2,
+      data3: updatedMeanData3,
+      data4: updatedMeanData4,
+      data5: updatedMeanData5,
+      data6: updatedMeanData6,
+    }));
+  }, [rangeData]);
 
-  const TOTAL = chartData6.map((item) => item.value).reduce((a, b) => a + b, 0);
+  const updatedRangeData = { ...rangeData };
+  const addHourField = (data) => {
+    if (!data) {
+      return [];
+    }
+
+    return data.map((entry, index) => ({
+      ...entry,
+      hour: `${String(index)}:00`,
+    }));
+  };
+
+  useEffect(() => {
+    updatedRangeData.data1 = addHourField(rangeData.data1);
+    updatedRangeData.data2 = addHourField(rangeData.data2);
+    updatedRangeData.data3 = addHourField(rangeData.data3);
+    updatedRangeData.data4 = addHourField(rangeData.data4);
+    updatedRangeData.data5 = addHourField(rangeData.data5);
+    updatedRangeData.data6 = addHourField(rangeData.data6);
+
+    setDailyChart((prevChart) => ({
+      ...prevChart,
+      data1: updatedRangeData.data1,
+      data2: updatedRangeData.data2,
+      data3: updatedRangeData.data3,
+      data4: updatedRangeData.data4,
+      data5: updatedRangeData.data5,
+      data6: updatedRangeData.data6,
+    }));
+  }, [rangeData]);
+
+  // const TOTAL = meanData.data6
+  //   .map((item) => item.value)
+  //   .reduce((a, b) => a + b, 0);
 
   const getArcLabel = (params) => {
     const percent = params.value / TOTAL;
@@ -437,7 +469,7 @@ export default function ChartView({ isLastData }) {
               <div className="flex justify-center items-center gap-x-2 my-2">
                 <p className="text-white font-medium">OUT1 :</p>
                 {lastData?.data1?.OUT1 == null ? (
-                  <DataNULL iconSize="12"/>
+                  <DataNULL iconSize="12" />
                 ) : lastData.data1.OUT1 == 0 ? (
                   <ToggleOffTwoToneIcon className="w-14 h-14 text-gray-400" />
                 ) : (
@@ -451,7 +483,7 @@ export default function ChartView({ isLastData }) {
                 {fieldData2Labels.map((fieldLabel, index) => (
                   <div className="block text-center" key={index}>
                     {lastData?.data2?.[fieldLabel] == null ? (
-                      <DataNULL iconSize="10"/>
+                      <DataNULL iconSize="10" />
                     ) : lastData.data2[fieldLabel] === 0 ? (
                       <ToggleOffTwoToneIcon className="w-12 h-12 text-gray-400" />
                     ) : (
@@ -468,7 +500,7 @@ export default function ChartView({ isLastData }) {
                 {fieldData3Labels.map((fieldLabel, index) => (
                   <div className="block text-center" key={index}>
                     {lastData?.data3?.[fieldLabel] == null ? (
-                      <DataNULL iconSize="9"/>
+                      <DataNULL iconSize="9" />
                     ) : lastData.data3[fieldLabel] === 0 ? (
                       <ToggleOffTwoToneIcon className="w-10 h-10 text-gray-400" />
                     ) : (
@@ -485,7 +517,7 @@ export default function ChartView({ isLastData }) {
                 {fieldData4Labels.map((fieldLabel, index) => (
                   <div className="block text-center" key={index}>
                     {lastData?.data4?.[fieldLabel] == null ? (
-                      <DataNULL iconSize="10"/>
+                      <DataNULL iconSize="10" />
                     ) : lastData.data4[fieldLabel] === 0 ? (
                       <ToggleOffTwoToneIcon className="w-12 h-12 text-gray-400" />
                     ) : (
@@ -495,18 +527,142 @@ export default function ChartView({ isLastData }) {
                   </div>
                 ))}
               </div>
+              <div className="flex justify-evenly items-center gap-x-2 my-2">
+                {meanData.data4 && meanData.data4[4] && (
+                  <div className="block text-center">
+                    <p className="text-white font-semibold mt-1 text-2xl">
+                      {meanData.data4[4].value == null ? (
+                        <DataNULL iconSize="10" />
+                      ) : (
+                        meanData.data4[4].value
+                      )}
+                    </p>
+                    <p className="text-white font-medium mt-1">
+                      {meanData.data4[4].label}
+                    </p>
+                  </div>
+                )}
+
+                {meanData.data4 && meanData.data4[5] && (
+                  <div className="block text-center">
+                    <p className="text-white font-medium mt-1 text-2xl">
+                      {meanData.data4[5].value == null ? (
+                        <DataNULL iconSize="10" />
+                      ) : (
+                        meanData.data4[5].value
+                      )}
+                    </p>
+                    <p className="text-white font-medium mt-1">
+                      {meanData.data4[5].label}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* right side */}
-      <div className="chart-container-rtl top-[100px] h-[900px]">
+      <div className="chart-container-rtl top-[100px] h-[855px]">
         <div className="chart-content-rtl">
-          <div className="content-ltr bg-[#00000080] p-2 rounded-sm">
-            <div className="flex justify-between items-center">
-              <label className="text-xl font-bold text-white">Test Chart</label>
-              <div>
+          <div className="content-ltr bg-[#00000080] flex flex-col gap-2 rounded-sm">
+            <div className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer">
+              <label className="text-xl font-bold text-white">API5</label>
+              <div className="grid grid-cols-3 justify-between gap-1 my-2">
+                {meanData?.data5?.map((item, index) => (
+                  <div className="block text-center p-2 border" key={index}>
+                    <p className="text-white font-semibold text-xl">
+                      {item.value == null ? (
+                        <DataNULL iconSize="5" />
+                      ) : (
+                        item.value
+                      )}
+                    </p>
+                    <p className="text-white font-medium">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer">
+              <label className="text-xl font-bold text-white">API6</label>
+              <div className="grid grid-cols-2 justify-between gap-1 my-2">
+                {meanData?.data6?.map((item, index) => (
+                  <div className="block text-center p-2 border" key={index}>
+                    <p className="text-white font-semibold text-xl">
+                      {item.value == null ? (
+                        <DataNULL iconSize="6" />
+                      ) : (
+                        item.value
+                      )}
+                    </p>
+                    <p className="text-white font-medium">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* <div className="contents">
+              <BarChart
+                dataset={meanData.data6}
+                xAxis={[
+                  {
+                    label: "API Length",
+                  },
+                ]}
+                yAxis={[{ scaleType: "band", dataKey: "label" }]}
+                series={[
+                  {
+                    dataKey: "value",
+                    label: "label",
+                  },
+                ]}
+                layout="horizontal"
+                width={300}
+                height={320}
+              />
+            </div>
+            <div className="contents">
+              <PieChart
+                series={[
+                  {
+                    data: meanData.data6,
+                    arcLabel: getArcLabel,
+                  },
+                ]}
+                sx={{
+                  [`& .${pieArcLabelClasses.root}`]: {
+                    fill: "white",
+                    fontSize: 16,
+                  },
+                }}
+                width={350}
+                height={280}
+                slotProps={{
+                  legend: { hidden: true },
+                }}
+                margin={{ left: 15 }}
+              />
+            </div>
+            <div className="contents">
+              <LineChart
+                dataset={meanData.data6}
+                width={290}
+                height={180}
+                series={[{ dataKey: "value" }]}
+                xAxis={[{ dataKey: "label", scaleType: "point" }]}
+                margin={{ top: 20 }}
+              />
+            </div> */}
+    </ThemeProvider>
+  );
+}
+
+{
+  /* <div>
                 <select
                   id="countries"
                   className="bg-[#00000050] border border-translate text-white text-sm rounded-sm block p-2.5"
@@ -530,110 +686,5 @@ export default function ChartView({ isLastData }) {
                     ทั้งหมด
                   </option>
                 </select>
-              </div>
-            </div>
-
-            <div className="contents">
-              <BarChart
-                dataset={chartData5}
-                xAxis={[
-                  {
-                    label: "API Length",
-                  },
-                ]}
-                yAxis={[{ scaleType: "band", dataKey: "label" }]}
-                series={[
-                  {
-                    dataKey: "value",
-                    label: "label",
-                  },
-                ]}
-                layout="horizontal"
-                width={300}
-                height={320}
-              />
-            </div>
-            <div className="contents">
-              <PieChart
-                series={[
-                  {
-                    data: chartData5,
-                    arcLabel: getArcLabel,
-                  },
-                ]}
-                sx={{
-                  [`& .${pieArcLabelClasses.root}`]: {
-                    fill: "white",
-                    fontSize: 16,
-                  },
-                }}
-                width={350}
-                height={280}
-                slotProps={{
-                  legend: { hidden: true },
-                }}
-                margin={{ left: 15 }}
-              />
-            </div>
-            <div className="contents">
-              <LineChart
-                dataset={chartData5}
-                width={290}
-                height={180}
-                series={[{ dataKey: "value" }]}
-                xAxis={[{ dataKey: "label", scaleType: "point" }]}
-                margin={{ top: 20 }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* <div className="chart-container-rtl top-[450px] h-[320px]">
-        <div className="chart-content-rtl">
-          <div className="content-ltr bg-[#00000080] p-2 rounded-sm">
-            <label className="text-xl font-bold text-white">Pie Chart</label>
-            <div className="contents">
-              <PieChart
-                series={[
-                  {
-                    data: testData,
-                    arcLabel: getArcLabel,
-                  },
-                ]}
-                sx={{
-                  [`& .${pieArcLabelClasses.root}`]: {
-                    fill: "white",
-                    fontSize: 16,
-                  },
-                }}
-                width={350}
-                height={260}
-                slotProps={{
-                  legend: { hidden: true },
-                }}
-                margin={{ left: 15 }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="chart-container-rtl top-[760px] h-[230px]">
-        <div className="chart-content-rtl">
-          <div className="content-ltr bg-[#00000080] p-2 rounded-sm">
-            <label className="text-xl font-bold text-white">Line Chart</label>
-            <div className="contents">
-              <LineChart
-                dataset={testData}
-                width={290}
-                height={160}
-                series={[{ dataKey: "value" }]}
-                xAxis={[{ dataKey: "label", scaleType: "point" }]}
-                margin={{ top: 10 }}
-              />
-            </div>
-          </div>
-        </div>
-      </div> */}
-    </ThemeProvider>
-  );
+              </div> */
 }
