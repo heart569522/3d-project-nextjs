@@ -6,7 +6,6 @@ Command: npx gltfjsx@6.2.16 ./public/model3d/room.glb
 import React, { useRef, useState } from "react";
 import { useGLTF, Html } from "@react-three/drei";
 import { Select } from "@react-three/postprocessing";
-import convertToDateTimeText from "@/app/lib/service";
 
 export function Room(props) {
   const { chartData } = props;

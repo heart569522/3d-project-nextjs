@@ -59,7 +59,6 @@ export function Room(props) {
   }, []);
 
   const { lastData } = props;
-  console.log("🚀 ~ Room ~ lastData:", lastData);
 
   const { nodes, materials } = useGLTF("/bps-room.glb");
   const [hover, setHover] = useState();
@@ -151,72 +150,103 @@ export function Room(props) {
           material={materials.Material}
           position={[8.495, 1.8, -8.055]}
         />
-        <group position={[0.949, 0.731, -2.963]}>
-          <mesh
-            geometry={nodes["G-chair-1_1"].geometry}
-            material={materials.CP_B}
-          />
-          <mesh
-            geometry={nodes["G-chair-1_2"].geometry}
-            material={materials["*2"]}
-          />
-          <mesh
-            geometry={nodes["G-chair-1_3"].geometry}
-            material={materials.casters}
-          />
-          <mesh
-            geometry={nodes["G-chair-1_4"].geometry}
-            material={materials["*6"]}
-          />
-          <mesh
-            geometry={nodes["G-chair-1_5"].geometry}
-            material={materials["*1"]}
-          />
-        </group>
-        <group position={[2.838, 0.731, -3.406]}>
-          <mesh
-            geometry={nodes["G-chair-2_1"].geometry}
-            material={materials.CP_B}
-          />
-          <mesh
-            geometry={nodes["G-chair-2_2"].geometry}
-            material={materials["*2"]}
-          />
-          <mesh
-            geometry={nodes["G-chair-2_3"].geometry}
-            material={materials.casters}
-          />
-          <mesh
-            geometry={nodes["G-chair-2_4"].geometry}
-            material={materials["*6"]}
-          />
-          <mesh
-            geometry={nodes["G-chair-2_5"].geometry}
-            material={materials["*1"]}
-          />
-        </group>
-        <group position={[1.317, 0.731, -4.69]}>
-          <mesh
-            geometry={nodes["G-chair-3_1"].geometry}
-            material={materials.CP_B}
-          />
-          <mesh
-            geometry={nodes["G-chair-3_2"].geometry}
-            material={materials["*2"]}
-          />
-          <mesh
-            geometry={nodes["G-chair-3_3"].geometry}
-            material={materials.casters}
-          />
-          <mesh
-            geometry={nodes["G-chair-3_4"].geometry}
-            material={materials["*6"]}
-          />
-          <mesh
-            geometry={nodes["G-chair-3_5"].geometry}
-            material={materials["*1"]}
-          />
-        </group>
+        <Select
+          name="chair"
+          enabled={hover === "chair" || click.chair}
+          onPointerOver={() => handleObjectHover("chair")}
+          onPointerOut={() => handleObjectHover(null)}
+          onClick={() => handleObjectClick("chair")}
+        >
+          <group position={[0.949, 0.731, -2.963]}>
+            <mesh
+              geometry={nodes["G-chair-1_1"].geometry}
+              material={materials.CP_B}
+            />
+            <mesh
+              geometry={nodes["G-chair-1_2"].geometry}
+              material={materials["*2"]}
+            />
+            <mesh
+              geometry={nodes["G-chair-1_3"].geometry}
+              material={materials.casters}
+            />
+            <mesh
+              geometry={nodes["G-chair-1_4"].geometry}
+              material={materials["*6"]}
+            />
+            <mesh
+              geometry={nodes["G-chair-1_5"].geometry}
+              material={materials["*1"]}
+            />
+          </group>
+          <group position={[2.838, 0.731, -3.406]}>
+            {click.chair && (
+              <Html distanceFactor={15}>
+                <div className="content">
+                  <label className="font-bold underline text-lg">API3</label>
+                  <div className="grid grid-cols-2">
+                    {fieldData3Labels.map((fieldLabel, index) => (
+                      <React.Fragment key={index}>
+                        <div className="flex justify-start">
+                          <label>{fieldLabel}: </label>
+                        </div>
+                        <div className="flex justify-start">
+                          <p>
+                            {lastData.lastData3[fieldLabel] == null
+                              ? "null"
+                              : lastData.lastData3[fieldLabel]}
+                          </p>
+                        </div>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              </Html>
+            )}
+            <mesh
+              geometry={nodes["G-chair-2_1"].geometry}
+              material={materials.CP_B}
+            />
+            <mesh
+              geometry={nodes["G-chair-2_2"].geometry}
+              material={materials["*2"]}
+            />
+            <mesh
+              geometry={nodes["G-chair-2_3"].geometry}
+              material={materials.casters}
+            />
+            <mesh
+              geometry={nodes["G-chair-2_4"].geometry}
+              material={materials["*6"]}
+            />
+            <mesh
+              geometry={nodes["G-chair-2_5"].geometry}
+              material={materials["*1"]}
+            />
+          </group>
+          <group position={[1.317, 0.731, -4.69]}>
+            <mesh
+              geometry={nodes["G-chair-3_1"].geometry}
+              material={materials.CP_B}
+            />
+            <mesh
+              geometry={nodes["G-chair-3_2"].geometry}
+              material={materials["*2"]}
+            />
+            <mesh
+              geometry={nodes["G-chair-3_3"].geometry}
+              material={materials.casters}
+            />
+            <mesh
+              geometry={nodes["G-chair-3_4"].geometry}
+              material={materials["*6"]}
+            />
+            <mesh
+              geometry={nodes["G-chair-3_5"].geometry}
+              material={materials["*1"]}
+            />
+          </group>
+        </Select>
         <Select
           name="tv"
           enabled={hover === "tv" || click.tv}
@@ -260,7 +290,7 @@ export function Room(props) {
                           <p>
                             {lastData.lastData6[fieldLabel] == null
                               ? "null"
-                              : lastData.lastData6[fieldLabel]}
+                              : (lastData.lastData6[fieldLabel]).toFixed(2).toLocaleString()}
                           </p>
                         </div>
                       </React.Fragment>
@@ -394,7 +424,7 @@ export function Room(props) {
                         <p>
                           {lastData.lastData5[fieldLabel] == null
                             ? "null"
-                            : lastData.lastData5[fieldLabel]}
+                            : (lastData.lastData5[fieldLabel]).toFixed(2).toLocaleString()}
                         </p>
                       </div>
                     </React.Fragment>
@@ -404,68 +434,39 @@ export function Room(props) {
             </Html>
           )}
         </Select>
+
         <mesh
           geometry={nodes["G-server-2"].geometry}
           material={materials["[Formica Laminate Dark]"]}
           position={[6.274, 1.237, -1.505]}
         />
+
         <mesh
           geometry={nodes["G-floor"].geometry}
           material={materials.Material}
           position={[4.335, 0.15, -4.09]}
         />
-        <Select
-          name="wall"
-          enabled={hover === "wall" || click.wall}
-          onPointerOver={() => handleObjectHover("wall")}
-          onPointerOut={() => handleObjectHover(null)}
-          onClick={() => handleObjectClick("wall")}
-        >
-          <mesh
-            geometry={nodes["G-wall-1"].geometry}
-            material={materials.Material}
-            position={[5.915, 1.8, -0.05]}
-          />
-          <mesh
-            geometry={nodes["G-wall-2"].geometry}
-            material={materials.Material}
-            position={[2.255, 1.8, -0.05]}
-          />
-          <mesh
-            geometry={nodes["G-wall-3"].geometry}
-            material={materials.Material}
-            position={[6.415, 1.8, -8.055]}
-          >
-            {click.wall && (
-              <Html distanceFactor={15}>
-                <div className="content">
-                  <label className="font-bold underline text-lg">API3</label>
-                  <div className="grid grid-cols-2">
-                    {fieldData3Labels.map((fieldLabel, index) => (
-                      <React.Fragment key={index}>
-                        <div className="flex justify-start">
-                          <label>{fieldLabel}: </label>
-                        </div>
-                        <div className="flex justify-start">
-                          <p>
-                            {lastData.lastData3[fieldLabel] == null
-                              ? "null"
-                              : lastData.lastData3[fieldLabel]}
-                          </p>
-                        </div>
-                      </React.Fragment>
-                    ))}
-                  </div>
-                </div>
-              </Html>
-            )}
-          </mesh>
-          <mesh
-            geometry={nodes["G-wall-4"].geometry}
-            material={materials.Material}
-            position={[2.255, 1.8, -8.055]}
-          />
-        </Select>
+
+        <mesh
+          geometry={nodes["G-wall-1"].geometry}
+          material={materials.Material}
+          position={[5.915, 1.8, -0.05]}
+        />
+        <mesh
+          geometry={nodes["G-wall-2"].geometry}
+          material={materials.Material}
+          position={[2.255, 1.8, -0.05]}
+        />
+        <mesh
+          geometry={nodes["G-wall-3"].geometry}
+          material={materials.Material}
+          position={[6.415, 1.8, -8.055]}
+        />
+        <mesh
+          geometry={nodes["G-wall-4"].geometry}
+          material={materials.Material}
+          position={[2.255, 1.8, -8.055]}
+        />
 
         <Select
           name="glass"

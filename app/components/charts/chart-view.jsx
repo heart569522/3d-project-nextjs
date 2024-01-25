@@ -1,25 +1,16 @@
 "use client";
 import React from "react";
 import { useState, useEffect } from "react";
-import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
 import { useDrawingArea } from "@mui/x-charts/hooks";
-import { LineChart } from "@mui/x-charts/LineChart";
-import { BarChart } from "@mui/x-charts/BarChart";
 import { getAllData } from "../../lib/bpsDataActions";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import {
-  addDays,
-  startOfDay,
-  startOfWeek,
-  startOfMonth,
-  startOfYear,
-} from "date-fns";
 import { styled } from "@mui/material/styles";
 import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 import Fade from "@mui/material/Fade";
-import ToggleOffTwoToneIcon from "@mui/icons-material/ToggleOffTwoTone";
-import ToggleOnTwoToneIcon from "@mui/icons-material/ToggleOnTwoTone";
+import CircleTwoToneIcon from "@mui/icons-material/CircleTwoTone";
 import CloudOffTwoToneIcon from "@mui/icons-material/CloudOffTwoTone";
+import ModalChartDetail from "../modal";
+import { filterDataByTime, calculateMean } from "@/app/lib/service";
 
 const theme = createTheme({
   palette: {
@@ -70,22 +61,6 @@ const fieldData4Labels = ["IN1", "IN2", "IN3", "IN4"];
 const fieldData5Labels = generateLabels("p", 1, 20);
 const fieldData6Labels = generateLabels("s", 201, 210);
 
-function PieCenterLabel({ children }) {
-  const { width, height, left, top } = useDrawingArea();
-  const textStyle = {
-    textAnchor: "middle",
-    dominantBaseline: "auto",
-    fontSize: 20,
-    fontWeight: "bold",
-    fill: "white",
-  };
-  return (
-    <text x={left + width / 2} y={top + height / 1} style={textStyle}>
-      {children}
-    </text>
-  );
-}
-
 export function DataNULL({ iconSize }) {
   return (
     <HtmlTooltip
@@ -113,7 +88,7 @@ export default function ChartView({ isLastData }) {
     data5: [],
     data6: [],
   });
-  console.log("🚀 ~ ChartView ~ data:", data);
+  // console.log("🚀 ~ ChartView ~ data:", data);
 
   const [selectedOption, setSelectedOption] = useState("daily");
   const [rangeData, setRangeData] = useState({
@@ -124,7 +99,6 @@ export default function ChartView({ isLastData }) {
     data5: null,
     data6: null,
   });
-  console.log("🚀 ~ ChartView ~ rangeData:", rangeData);
 
   const [dailyChart, setDailyChart] = useState({
     data1: null,
@@ -134,7 +108,11 @@ export default function ChartView({ isLastData }) {
     data5: null,
     data6: null,
   });
-  console.log("🚀 ~ ChartView ~ dailyChart:", dailyChart);
+
+  const [minMax, setMinMax] = useState({
+    type1: { min: 235, max: 500 },
+    type2: { min: 0, max: 35 },
+  });
 
   const [lastData, setLastData] = useState({
     data1: null,
@@ -144,7 +122,6 @@ export default function ChartView({ isLastData }) {
     data5: null,
     data6: null,
   });
-  console.log("🚀 ~ ChartView ~ lastData:", lastData);
 
   const [meanData, setMeanData] = useState({
     data1: null,
@@ -154,7 +131,110 @@ export default function ChartView({ isLastData }) {
     data5: null,
     data6: null,
   });
-  console.log("🚀 ~ ChartView ~ meanData:", meanData);
+
+  const [openModal, setOpenModal] = useState(false);
+  const [titleModal, setTitleModal] = useState("");
+  const [chartType, setChartType] = useState("");
+  const [chartData, setChartData] = useState();
+  const [chartDataLabel, setChartDataLabel] = useState("");
+
+  const openChartModal = (chartType, itemLabel) => {
+    console.log("itemLabel: ", itemLabel);
+    console.log("openChartModal...");
+
+    switch (chartType) {
+      case "api1":
+        setTitleModal("Data 1 Chart");
+        setOpenModal(true);
+        setChartType(chartType);
+        setChartData(data.data1);
+        break;
+
+      case "api2":
+        setTitleModal("Data 2 Chart");
+        setOpenModal(true);
+        setChartType(chartType);
+        setChartData(data.data2);
+        break;
+
+      case "api3":
+        setTitleModal("Data 3 Chart");
+        setOpenModal(true);
+        setChartType(chartType);
+        setChartData(data.data3);
+        break;
+
+      case "api4_in":
+        setTitleModal("Data 4 (IN) Chart");
+        setOpenModal(true);
+        setChartType(chartType);
+
+        const inData4 = data.data4.map((row) => ({
+          IN1: row.IN1,
+          IN2: row.IN2,
+          IN3: row.IN3,
+          IN4: row.IN4,
+          datetime: row.datetime,
+          id: row.id,
+          record_at: row.record_at,
+        }));
+        setChartData(inData4);
+        break;
+
+      case "api4":
+        setTitleModal(`Data 4 (${itemLabel}) Chart`);
+        setOpenModal(true);
+        setChartType(chartType);
+
+        const api4Data = data.data4.map((row) => ({
+          [itemLabel]: row[itemLabel],
+          datetime: row.datetime,
+          id: row.id,
+          record_at: row.record_at,
+        }));
+        setChartData(api4Data);
+        setChartDataLabel(itemLabel);
+        break;
+
+      case "api5":
+        setTitleModal(`Data 5 (${itemLabel}) Chart`);
+        setOpenModal(true);
+        setChartType(chartType);
+
+        const api5Data = data.data5.map((row) => ({
+          [itemLabel]: row[itemLabel],
+          datetime: row.datetime,
+          id: row.id,
+          record_at: row.record_at,
+        }));
+        setChartData(api5Data);
+        setChartDataLabel(itemLabel);
+        break;
+
+      case "api6":
+        setTitleModal(`Data 6 (${itemLabel}) Chart`);
+        setOpenModal(true);
+        setChartType(chartType);
+
+        const api6Data = data.data6.map((row) => ({
+          [itemLabel]: row[itemLabel],
+          datetime: row.datetime,
+          id: row.id,
+          record_at: row.record_at,
+        }));
+        setChartData(api6Data);
+        setChartDataLabel(itemLabel);
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  const closeChartModal = () => {
+    setSelectedOption("daily");
+    setOpenModal(false);
+  };
 
   const filterLastData = (data) => {
     const filteredData = {};
@@ -178,10 +258,6 @@ export default function ChartView({ isLastData }) {
       lastData.data6
     );
   }, [lastData]);
-
-  const handleSelectChange = (e) => {
-    setSelectedOption(e.target.value);
-  };
 
   const fetchData = async () => {
     try {
@@ -236,51 +312,6 @@ export default function ChartView({ isLastData }) {
     }
   };
 
-  const filterDataByTime = (data, timeRange) => {
-    const formatter = new Intl.DateTimeFormat("en-US", {
-      timeZone: "Asia/Bangkok",
-    });
-    const dateNow = formatter.format(new Date());
-    const currentDate = new Date(dateNow);
-
-    switch (timeRange) {
-      case "daily":
-        return data.filter((item) => {
-          const formattedDate = formatter.format(new Date(item.record_at));
-          const recordDate = new Date(formattedDate);
-          const resultRecordDate = `${recordDate.getDate()}/${
-            recordDate.getMonth() + 1
-          }/${recordDate.getFullYear()}`;
-          const resultCurrentDate = `${currentDate.getDate()}/${
-            currentDate.getMonth() + 1
-          }/${currentDate.getFullYear()}`;
-          return resultRecordDate === resultCurrentDate;
-        });
-
-      case "weekly":
-        const lastWeekDate = addDays(startOfWeek(currentDate), -7);
-        return data.filter((item) => new Date(item.record_at) >= lastWeekDate);
-
-      case "monthly":
-        const startOfMonthDate = startOfMonth(currentDate);
-        return data.filter(
-          (item) => new Date(item.record_at) >= startOfMonthDate
-        );
-
-      case "yearly":
-        const startOfYearDate = startOfYear(currentDate);
-        return data.filter(
-          (item) => new Date(item.record_at) >= startOfYearDate
-        );
-
-      case "all":
-        return data;
-
-      default:
-        return data;
-    }
-  };
-
   useEffect(() => {
     fetchData();
 
@@ -288,75 +319,6 @@ export default function ChartView({ isLastData }) {
 
     return () => clearInterval(interval);
   }, [selectedOption]);
-
-  const calculateMean = (type, data, dataLength) => {
-    let sValues;
-
-    switch (type) {
-      case "api1":
-        sValues = Array.from({ length: dataLength }, (_, index) => {
-          const fieldNames = ["OUT1"];
-          return data?.map((entry) => entry[fieldNames[index]]);
-        });
-        break;
-
-      case "api2":
-        sValues = Array.from({ length: dataLength }, (_, index) =>
-          data?.map((entry) => entry[`IN${String(index + 1)}`])
-        );
-        break;
-
-      case "api3":
-        sValues = Array.from({ length: dataLength }, (_, index) => {
-          const fieldNames = ["IN1", "IN2", "IN3", "IN4", "OUT4"];
-          return data?.map((entry) => entry[fieldNames[index]]);
-        });
-        break;
-
-      case "api4":
-        sValues = Array.from({ length: dataLength }, (_, index) => {
-          const fieldNames = ["IN1", "IN2", "IN3", "IN4", "p221", "p222"];
-          return data?.map((entry) => entry[fieldNames[index]]);
-        });
-        break;
-
-      case "api5":
-        sValues = Array.from({ length: dataLength }, (_, index) =>
-          data?.map((entry) => entry[`p${String(index + 1).padStart(3, "0")}`])
-        );
-        break;
-
-      case "api6":
-        sValues = Array.from({ length: dataLength }, (_, index) =>
-          data?.map((entry) => entry[`s${201 + index}`])
-        );
-        break;
-
-      default:
-        break;
-    }
-
-    const meanValues = sValues.map((values) => {
-      if (Array.isArray(values)) {
-        const filteredValues = values
-          .filter((value) => typeof value === "number" && !isNaN(value))
-          .filter((value) => value !== null);
-
-        if (filteredValues.length === 0) {
-          return null;
-        }
-
-        const sum = filteredValues.reduce((acc, value) => acc + value, 0);
-        const mean = sum / filteredValues.length || 0;
-        return mean.toFixed(2);
-      } else {
-        console.error("Values is not an array:", values);
-        return null;
-      }
-    });
-
-    return meanValues;
-  };
 
   useEffect(() => {
     const meanData1 = calculateMean("api1", rangeData.data1, 1);
@@ -438,13 +400,20 @@ export default function ChartView({ isLastData }) {
     }));
   }, [rangeData]);
 
-  // const TOTAL = meanData.data6
-  //   .map((item) => item.value)
-  //   .reduce((a, b) => a + b, 0);
+  const getTextColorClass = (item) => {
+    const moreThanMaxValueType2 = ["p221", "p222"].some(
+      (label) => item.label === label && item.value > minMax.type2.max
+    );
 
-  const getArcLabel = (params) => {
-    const percent = params.value / TOTAL;
-    return `${(percent * 100).toFixed(2)}%`;
+    const lessThanMinValueType2 = ["p221", "p222"].some(
+      (label) => item.label === label && item.value < minMax.type2.min
+    );
+
+    return moreThanMaxValueType2
+      ? "text-red-500"
+      : lessThanMinValueType2
+      ? "text-amber-500"
+      : "text-white";
   };
 
   return (
@@ -461,23 +430,32 @@ export default function ChartView({ isLastData }) {
       </div>
 
       {/* left side */}
-      <div className="chart-container-ltr top-[100px] h-full">
+      <div
+        className="chart-container-ltr top-[100px]"
+        style={{ height: "calc(100% - 100px)" }}
+      >
         <div className="chart-content-ltr">
           <div className="bg-[#00000080] flex flex-col gap-2 rounded-sm">
-            <div className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer">
+            <div
+              onClick={() => openChartModal("api1")}
+              className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer"
+            >
               <label className="text-xl font-bold text-white">API1</label>
               <div className="flex justify-center items-center gap-x-2 my-2">
                 <p className="text-white font-medium">OUT1 :</p>
                 {lastData?.data1?.OUT1 == null ? (
                   <DataNULL iconSize="12" />
                 ) : lastData.data1.OUT1 == 0 ? (
-                  <ToggleOffTwoToneIcon className="w-14 h-14 text-gray-400" />
+                  <CircleTwoToneIcon className="w-14 h-14 text-gray-500" />
                 ) : (
-                  <ToggleOnTwoToneIcon className="w-14 h-14  text-amber-200" />
+                  <CircleTwoToneIcon className="w-14 h-14  text-green-500" />
                 )}
               </div>
             </div>
-            <div className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer">
+            <div
+              onClick={() => openChartModal("api2")}
+              className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer"
+            >
               <label className="text-xl font-bold text-white">API2</label>
               <div className="flex justify-around items-center gap-x-2 my-2">
                 {fieldData2Labels.map((fieldLabel, index) => (
@@ -485,16 +463,19 @@ export default function ChartView({ isLastData }) {
                     {lastData?.data2?.[fieldLabel] == null ? (
                       <DataNULL iconSize="10" />
                     ) : lastData.data2[fieldLabel] === 0 ? (
-                      <ToggleOffTwoToneIcon className="w-12 h-12 text-gray-400" />
+                      <CircleTwoToneIcon className="w-12 h-12 text-gray-500" />
                     ) : (
-                      <ToggleOnTwoToneIcon className="w-12 h-12 text-amber-200" />
+                      <CircleTwoToneIcon className="w-12 h-12 text-green-500" />
                     )}
                     <p className="text-white font-medium mt-1">{fieldLabel}</p>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer">
+            <div
+              onClick={() => openChartModal("api3")}
+              className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer"
+            >
               <label className="text-xl font-bold text-white">API3</label>
               <div className="flex justify-around items-center gap-x-2 my-2">
                 {fieldData3Labels.map((fieldLabel, index) => (
@@ -502,35 +483,48 @@ export default function ChartView({ isLastData }) {
                     {lastData?.data3?.[fieldLabel] == null ? (
                       <DataNULL iconSize="9" />
                     ) : lastData.data3[fieldLabel] === 0 ? (
-                      <ToggleOffTwoToneIcon className="w-10 h-10 text-gray-400" />
+                      <CircleTwoToneIcon className="w-10 h-10 text-gray-500" />
                     ) : (
-                      <ToggleOnTwoToneIcon className="w-10 h-10 text-amber-200" />
+                      <CircleTwoToneIcon className="w-10 h-10 text-green-500" />
                     )}
                     <p className="text-white font-medium mt-1">{fieldLabel}</p>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer">
-              <label className="text-xl font-bold text-white">API4</label>
+            <div
+              onClick={() => openChartModal("api4_in")}
+              className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer"
+            >
+              <label className="text-xl font-bold text-white">API4 (IN)</label>
               <div className="flex justify-around items-center gap-x-2 my-2">
                 {fieldData4Labels.map((fieldLabel, index) => (
                   <div className="block text-center" key={index}>
                     {lastData?.data4?.[fieldLabel] == null ? (
                       <DataNULL iconSize="10" />
                     ) : lastData.data4[fieldLabel] === 0 ? (
-                      <ToggleOffTwoToneIcon className="w-12 h-12 text-gray-400" />
+                      <CircleTwoToneIcon className="w-12 h-12 text-gray-500" />
                     ) : (
-                      <ToggleOnTwoToneIcon className="w-12 h-12 text-amber-200" />
+                      <CircleTwoToneIcon className="w-12 h-12 text-green-500" />
                     )}
                     <p className="text-white font-medium mt-1">{fieldLabel}</p>
                   </div>
                 ))}
               </div>
-              <div className="flex justify-evenly items-center gap-x-2 my-2">
+            </div>
+            <div className="block py-2 px-3">
+              <label className="text-xl font-bold text-white">API4 (p)</label>
+              <div className="grid grid-cols-2 justify-between gap-1 my-2">
                 {meanData.data4 && meanData.data4[4] && (
-                  <div className="block text-center">
-                    <p className="text-white font-semibold mt-1 text-2xl">
+                  <div
+                    onClick={() => openChartModal("api4", meanData.data4[4].label)}
+                    className={`block text-center p-2 border transition-colors hover:bg-[#ffffff30] hover:cursor-pointer`}
+                  >
+                    <p
+                      className={`font-semibold mt-1 text-2xl ${getTextColorClass(
+                        meanData.data4[4]
+                      )}`}
+                    >
                       {meanData.data4[4].value == null ? (
                         <DataNULL iconSize="10" />
                       ) : (
@@ -544,8 +538,15 @@ export default function ChartView({ isLastData }) {
                 )}
 
                 {meanData.data4 && meanData.data4[5] && (
-                  <div className="block text-center">
-                    <p className="text-white font-medium mt-1 text-2xl">
+                  <div
+                    onClick={() => openChartModal("api4", meanData.data4[5].label)}
+                    className={`block text-center p-2 border transition-colors hover:bg-[#ffffff30] hover:cursor-pointer`}
+                  >
+                    <p
+                      className={`font-semibold mt-1 text-2xl ${getTextColorClass(
+                        meanData.data4[5]
+                      )}`}
+                    >
                       {meanData.data4[5].value == null ? (
                         <DataNULL iconSize="10" />
                       ) : (
@@ -564,127 +565,185 @@ export default function ChartView({ isLastData }) {
       </div>
 
       {/* right side */}
-      <div className="chart-container-rtl top-[100px] h-[855px]">
+      <div
+        className="chart-container-rtl top-[100px]"
+        style={{ height: "calc(100% - 100px)" }}
+      >
         <div className="chart-content-rtl">
           <div className="content-ltr bg-[#00000080] flex flex-col gap-2 rounded-sm">
-            <div className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer">
+            <div className="block py-2 px-3">
               <label className="text-xl font-bold text-white">API5</label>
               <div className="grid grid-cols-3 justify-between gap-1 my-2">
-                {meanData?.data5?.map((item, index) => (
-                  <div className="block text-center p-2 border" key={index}>
-                    <p className="text-white font-semibold text-xl">
-                      {item.value == null ? (
-                        <DataNULL iconSize="5" />
-                      ) : (
-                        item.value
-                      )}
-                    </p>
-                    <p className="text-white font-medium">{item.label}</p>
-                  </div>
-                ))}
+                {meanData?.data5?.map((item, index) => {
+                  const moreThanMaxValueType1 = [
+                    "p001",
+                    "p002",
+                    "p003",
+                    "p004",
+                    "p005",
+                    "p006",
+                  ].some(
+                    (label) =>
+                      item.label === label && item.value > minMax.type1.max
+                  );
+
+                  const lessThanMinValueType1 = [
+                    "p001",
+                    "p002",
+                    "p003",
+                    "p004",
+                    "p005",
+                    "p006",
+                  ].some(
+                    (label) =>
+                      item.label === label && item.value < minMax.type1.min
+                  );
+
+                  const moreThanMaxValueType2 = [
+                    "p007",
+                    "p008",
+                    "p009",
+                    "p010",
+                    "p011",
+                    "p012",
+                    "p013",
+                    "p014",
+                    "p015",
+                    "p016",
+                    "p017",
+                    "p018",
+                    "p019",
+                    "p020",
+                  ].some(
+                    (label) =>
+                      item.label === label && item.value > minMax.type2.max
+                  );
+
+                  const lessThanMinValueType2 = [
+                    "p007",
+                    "p008",
+                    "p009",
+                    "p010",
+                    "p011",
+                    "p012",
+                    "p013",
+                    "p014",
+                    "p015",
+                    "p016",
+                    "p017",
+                    "p018",
+                    "p019",
+                    "p020",
+                  ].some(
+                    (label) =>
+                      item.label === label && item.value < minMax.type2.min
+                  );
+
+                  const textColorClass =
+                    moreThanMaxValueType1 || moreThanMaxValueType2
+                      ? "text-red-500"
+                      : lessThanMinValueType1 || lessThanMinValueType2
+                      ? "text-amber-500"
+                      : "text-white";
+
+                  return (
+                    <div
+                      className={`block text-center p-2 border transition-colors hover:bg-[#ffffff30] hover:cursor-pointer`}
+                      key={index}
+                      onClick={() => openChartModal("api5", item.label)}
+                    >
+                      <p className={`font-semibold text-lg ${textColorClass}`}>
+                        {item.value == null ? (
+                          <DataNULL iconSize="5" />
+                        ) : (
+                          item.value
+                        )}
+                      </p>
+                      <p className="text-white font-medium">{item.label}</p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-            <div className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer">
+            <div className="block py-2 px-3">
               <label className="text-xl font-bold text-white">API6</label>
               <div className="grid grid-cols-2 justify-between gap-1 my-2">
-                {meanData?.data6?.map((item, index) => (
-                  <div className="block text-center p-2 border" key={index}>
-                    <p className="text-white font-semibold text-xl">
-                      {item.value == null ? (
-                        <DataNULL iconSize="6" />
-                      ) : (
-                        item.value
-                      )}
-                    </p>
-                    <p className="text-white font-medium">{item.label}</p>
-                  </div>
-                ))}
+                {meanData?.data6?.map((item, index) => {
+                  const moreThanMaxValueType1 = ["s208"].some(
+                    (label) =>
+                      item.label === label && item.value > minMax.type1.max
+                  );
+
+                  const lessThanMinValueType1 = ["s208"].some(
+                    (label) =>
+                      item.label === label && item.value < minMax.type1.min
+                  );
+
+                  const moreThanMaxValueType2 = [
+                    "s201",
+                    "s203",
+                    "s204",
+                    "s205",
+                    "s206",
+                    "s207",
+                    "s209",
+                    "s210",
+                  ].some(
+                    (label) =>
+                      item.label === label && item.value > minMax.type2.max
+                  );
+
+                  const lessThanMinValueType2 = [
+                    "s201",
+                    "s203",
+                    "s204",
+                    "s205",
+                    "s206",
+                    "s207",
+                    "s209",
+                    "s210",
+                  ].some(
+                    (label) =>
+                      item.label === label && item.value < minMax.type2.min
+                  );
+
+                  const textColorClass =
+                    moreThanMaxValueType1 || moreThanMaxValueType2
+                      ? "text-red-500"
+                      : lessThanMinValueType1 || lessThanMinValueType2
+                      ? "text-amber-500"
+                      : "text-white";
+
+                  return (
+                    <div
+                      className="block text-center p-2 border transition-colors hover:bg-[#ffffff30] hover:cursor-pointer"
+                      key={index}
+                      onClick={() => openChartModal("api6", item.label)}
+                    >
+                      <p className={`font-semibold text-xl ${textColorClass}`}>
+                        {item.value == null ? (
+                          <DataNULL iconSize="6" />
+                        ) : (
+                          item.value
+                        )}
+                      </p>
+                      <p className="text-white font-medium">{item.label}</p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* <div className="contents">
-              <BarChart
-                dataset={meanData.data6}
-                xAxis={[
-                  {
-                    label: "API Length",
-                  },
-                ]}
-                yAxis={[{ scaleType: "band", dataKey: "label" }]}
-                series={[
-                  {
-                    dataKey: "value",
-                    label: "label",
-                  },
-                ]}
-                layout="horizontal"
-                width={300}
-                height={320}
-              />
-            </div>
-            <div className="contents">
-              <PieChart
-                series={[
-                  {
-                    data: meanData.data6,
-                    arcLabel: getArcLabel,
-                  },
-                ]}
-                sx={{
-                  [`& .${pieArcLabelClasses.root}`]: {
-                    fill: "white",
-                    fontSize: 16,
-                  },
-                }}
-                width={350}
-                height={280}
-                slotProps={{
-                  legend: { hidden: true },
-                }}
-                margin={{ left: 15 }}
-              />
-            </div>
-            <div className="contents">
-              <LineChart
-                dataset={meanData.data6}
-                width={290}
-                height={180}
-                series={[{ dataKey: "value" }]}
-                xAxis={[{ dataKey: "label", scaleType: "point" }]}
-                margin={{ top: 20 }}
-              />
-            </div> */}
+      <ModalChartDetail
+        openModal={openModal}
+        onCloseModal={closeChartModal}
+        title={titleModal}
+        chartType={chartType}
+        chartData={chartData}
+        chartDataLabel={chartDataLabel}
+      />
     </ThemeProvider>
   );
-}
-
-{
-  /* <div>
-                <select
-                  id="countries"
-                  className="bg-[#00000050] border border-translate text-white text-sm rounded-sm block p-2.5"
-                  name="dayType"
-                  value={selectedOption}
-                  onChange={handleSelectChange}
-                >
-                  <option className="bg-gray-800" value="daily" selected>
-                    รายวัน
-                  </option>
-                  <option className="bg-gray-800" value="weekly">
-                    รายสัปดาห์
-                  </option>
-                  <option className="bg-gray-800" value="monthly">
-                    รายเดือน
-                  </option>
-                  <option className="bg-gray-800" value="yearly">
-                    รายปี
-                  </option>
-                  <option className="bg-gray-800" value="all">
-                    ทั้งหมด
-                  </option>
-                </select>
-              </div> */
 }

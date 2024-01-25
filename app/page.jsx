@@ -14,7 +14,6 @@ export default function Home() {
     lastData5: [{}],
     lastData6: [{}],
   });
-  console.log("🚀 ~ Home ~ lastData:", lastData);
 
   const updateChartData = (
     newLastData1,
