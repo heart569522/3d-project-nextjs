@@ -1,5 +1,4 @@
 "use client";
-import { RoomOld } from "./room-old";
 import { Room } from "./bps-room";
 import { useEffect, useState, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
@@ -37,14 +36,14 @@ export default function Model({ lastData }) {
   };
 
   return (
-    <Canvas camera={{ position: [4, 5, -3] }}>
+    <Canvas camera={{ position: [4, 8, -7] }}>
       {/* <Sky scale={1000} sunPosition={[2, 0.4, 10]} /> */}
       {/* <fog attach="fog" args={['#d4d4d4', 5, 18]} /> */}
       <Suspense fallback={null}>
-        {/* <ambientLight intensity={1} />
-        <directionalLight intensity={0.2} position={[2, 2, 0]} />
-        <pointLight intensity={60} position={[0, 5, 0]} color={color.warm} />
-        <spotLight intensity={5} position={[0.5, 5, 3]} /> */}
+        {/* <ambientLight intensity={1} /> */}
+        {/* <directionalLight intensity={0.2} position={[2, 2, 0]} /> */}
+        <pointLight intensity={40} position={[0, 7, 0]} color={color.warm} />
+        {/* <spotLight intensity={5} position={[0.5, 5, 3]} /> */}
         <Selection>
           <EffectComposer multisampling={0} autoClear={false}>
             <SSAO
