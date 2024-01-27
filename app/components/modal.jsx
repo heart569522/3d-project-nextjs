@@ -7,6 +7,8 @@ import { BarChart } from "@mui/x-charts/BarChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { filterDataByTime } from "@/app/lib/service";
 import { getISOWeek } from "date-fns";
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 
 const style = {
   position: "absolute",
@@ -169,8 +171,18 @@ export default function ModalChartDetail({
 
   const getMonthLabel = (monthIndex) => {
     const months = [
-      "Jan.", "Feb.", "Mar.", "Apr.", "May.", "Jun.",
-      "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."
+      "Jan.",
+      "Feb.",
+      "Mar.",
+      "Apr.",
+      "May.",
+      "Jun.",
+      "Jul.",
+      "Aug.",
+      "Sep.",
+      "Oct.",
+      "Nov.",
+      "Dec.",
     ];
     return months[monthIndex];
   };
@@ -308,10 +320,12 @@ export default function ModalChartDetail({
       case "yearly":
         const yearlyMeanValue = calculateYearlyMean(rangeData, chartType);
         const limitedYaerlyMeanData = yearlyMeanValue.slice(0, 12);
-        const dailyChartWithMonth = limitedYaerlyMeanData.map((entry, index) => ({
-          ...entry,
-          month: getMonthLabel(index),
-        }));
+        const dailyChartWithMonth = limitedYaerlyMeanData.map(
+          (entry, index) => ({
+            ...entry,
+            month: getMonthLabel(index),
+          })
+        );
         setDailyChart(dailyChartWithMonth);
         break;
 
@@ -347,28 +361,17 @@ export default function ModalChartDetail({
             {title}
           </h3>
           <div className="mr-10">
-            <select
-              className="bg-[#00000050] border border-translate text-white text-sm rounded-sm block p-2.5"
+            <Select
               name="dayType"
               value={selectedOption}
               onChange={handleSelectChange}
+              size="small"
             >
-              <option className="bg-gray-800" value="daily">
-                รายวัน
-              </option>
-              <option className="bg-gray-800" value="weekly">
-                รายสัปดาห์
-              </option>
-              <option className="bg-gray-800" value="monthly">
-                รายเดือน
-              </option>
-              <option className="bg-gray-800" value="yearly">
-                รายปี
-              </option>
-              {/* <option className="bg-gray-800" value="all">
-                ทั้งหมด
-              </option> */}
-            </select>
+              <MenuItem value={'daily'}>รายวัน</MenuItem>
+              <MenuItem value={'weekly'}>รายสัปดาห์</MenuItem>
+              <MenuItem value={'monthly'}>รายเดือน</MenuItem>
+              <MenuItem value={'yearly'}>รายปี</MenuItem>
+            </Select>
           </div>
         </div>
 

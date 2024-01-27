@@ -6,10 +6,12 @@ import { getAllData } from "../../lib/bpsDataActions";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
 import Fade from "@mui/material/Fade";
 import CircleTwoToneIcon from "@mui/icons-material/CircleTwoTone";
 import CloudOffTwoToneIcon from "@mui/icons-material/CloudOffTwoTone";
 import ModalChartDetail from "../modal";
+import CalendarViewMonthIcon from "@mui/icons-material/CalendarViewMonth";
 import { filterDataByTime, calculateMean } from "@/app/lib/service";
 
 const theme = createTheme({
@@ -80,6 +82,8 @@ export function DataNULL({ iconSize }) {
 }
 
 export default function ChartView({ isLastData }) {
+  const [isHideChart, setIsHideChart] = useState(false);
+
   const [data, setData] = useState({
     data1: [],
     data2: [],
@@ -137,6 +141,10 @@ export default function ChartView({ isLastData }) {
   const [chartType, setChartType] = useState("");
   const [chartData, setChartData] = useState();
   const [chartDataLabel, setChartDataLabel] = useState("");
+
+  const handleShowHidePanel = () => {
+    setIsHideChart((prevIsHideChart) => !prevIsHideChart);
+  };
 
   const openChartModal = (chartType, itemLabel) => {
     console.log("itemLabel: ", itemLabel);
@@ -421,329 +429,363 @@ export default function ChartView({ isLastData }) {
       {/* header */}
       <div className="header-container top-0 h-[100px]">
         <div className="bg-[#00000080] p-2 rounded-sm">
-          <div className="flex justify-center items-center">
+          <div className="flex justify-between px-6 items-center">
+            <div></div>
             <h1 className="text-center py-6 text-white font-semibold text-2xl">
               BPS
             </h1>
+            <Tooltip
+              title="Show/Hide Panel"
+              placement="left"
+            >
+              <IconButton className="bg-white" onClick={handleShowHidePanel}>
+                <CalendarViewMonthIcon
+                  className={` ${
+                    isHideChart ? "text-red-400" : "text-gray-800"
+                  } rotate-90 w-7 h-7`}
+                />
+              </IconButton>
+            </Tooltip>
           </div>
         </div>
       </div>
 
-      {/* left side */}
-      <div
-        className="chart-container-ltr top-[100px]"
-        style={{ height: "calc(100% - 100px)" }}
-      >
-        <div className="chart-content-ltr">
-          <div className="bg-[#00000080] flex flex-col gap-2 rounded-sm">
-            <div
-              onClick={() => openChartModal("api1")}
-              className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer"
-            >
-              <label className="text-xl font-bold text-white">API1</label>
-              <div className="flex justify-center items-center gap-x-2 my-2">
-                <p className="text-white font-medium">OUT1 :</p>
-                {lastData?.data1?.OUT1 == null ? (
-                  <DataNULL iconSize="12" />
-                ) : lastData.data1.OUT1 == 0 ? (
-                  <CircleTwoToneIcon className="w-14 h-14 text-gray-500" />
-                ) : (
-                  <CircleTwoToneIcon className="w-14 h-14  text-green-500" />
-                )}
-              </div>
-            </div>
-            <div
-              onClick={() => openChartModal("api2")}
-              className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer"
-            >
-              <label className="text-xl font-bold text-white">API2</label>
-              <div className="flex justify-around items-center gap-x-2 my-2">
-                {fieldData2Labels.map((fieldLabel, index) => (
-                  <div className="block text-center" key={index}>
-                    {lastData?.data2?.[fieldLabel] == null ? (
-                      <DataNULL iconSize="10" />
-                    ) : lastData.data2[fieldLabel] === 0 ? (
-                      <CircleTwoToneIcon className="w-12 h-12 text-gray-500" />
+      {!isHideChart && (
+        <React.Fragment>
+          <div
+            className="chart-container-ltr top-[100px]"
+            style={{ height: "calc(100% - 100px)" }}
+          >
+            <div className="chart-content-ltr">
+              <div className="bg-[#00000080] flex flex-col gap-2 rounded-sm">
+                <div
+                  onClick={() => openChartModal("api1")}
+                  className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer"
+                >
+                  <label className="text-xl font-bold text-white">API1</label>
+                  <div className="flex justify-center items-center gap-x-2 my-2">
+                    <p className="text-white font-medium">OUT1 :</p>
+                    {lastData?.data1?.OUT1 == null ? (
+                      <DataNULL iconSize="12" />
+                    ) : lastData.data1.OUT1 == 0 ? (
+                      <CircleTwoToneIcon className="w-14 h-14 text-gray-500" />
                     ) : (
-                      <CircleTwoToneIcon className="w-12 h-12 text-green-500" />
+                      <CircleTwoToneIcon className="w-14 h-14  text-green-500" />
                     )}
-                    <p className="text-white font-medium mt-1">{fieldLabel}</p>
                   </div>
-                ))}
-              </div>
-            </div>
-            <div
-              onClick={() => openChartModal("api3")}
-              className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer"
-            >
-              <label className="text-xl font-bold text-white">API3</label>
-              <div className="flex justify-around items-center gap-x-2 my-2">
-                {fieldData3Labels.map((fieldLabel, index) => (
-                  <div className="block text-center" key={index}>
-                    {lastData?.data3?.[fieldLabel] == null ? (
-                      <DataNULL iconSize="9" />
-                    ) : lastData.data3[fieldLabel] === 0 ? (
-                      <CircleTwoToneIcon className="w-10 h-10 text-gray-500" />
-                    ) : (
-                      <CircleTwoToneIcon className="w-10 h-10 text-green-500" />
-                    )}
-                    <p className="text-white font-medium mt-1">{fieldLabel}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div
-              onClick={() => openChartModal("api4_in")}
-              className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer"
-            >
-              <label className="text-xl font-bold text-white">API4 (IN)</label>
-              <div className="flex justify-around items-center gap-x-2 my-2">
-                {fieldData4Labels.map((fieldLabel, index) => (
-                  <div className="block text-center" key={index}>
-                    {lastData?.data4?.[fieldLabel] == null ? (
-                      <DataNULL iconSize="10" />
-                    ) : lastData.data4[fieldLabel] === 0 ? (
-                      <CircleTwoToneIcon className="w-12 h-12 text-gray-500" />
-                    ) : (
-                      <CircleTwoToneIcon className="w-12 h-12 text-green-500" />
-                    )}
-                    <p className="text-white font-medium mt-1">{fieldLabel}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="block py-2 px-3">
-              <label className="text-xl font-bold text-white">API4 (p)</label>
-              <div className="grid grid-cols-2 justify-between gap-1 my-2">
-                {meanData.data4 && meanData.data4[4] && (
-                  <div
-                    onClick={() => openChartModal("api4", meanData.data4[4].label)}
-                    className={`block text-center p-2 border transition-colors hover:bg-[#ffffff30] hover:cursor-pointer`}
-                  >
-                    <p
-                      className={`font-semibold mt-1 text-2xl ${getTextColorClass(
-                        meanData.data4[4]
-                      )}`}
-                    >
-                      {meanData.data4[4].value == null ? (
-                        <DataNULL iconSize="10" />
-                      ) : (
-                        meanData.data4[4].value
-                      )}
-                    </p>
-                    <p className="text-white font-medium mt-1">
-                      {meanData.data4[4].label}
-                    </p>
-                  </div>
-                )}
-
-                {meanData.data4 && meanData.data4[5] && (
-                  <div
-                    onClick={() => openChartModal("api4", meanData.data4[5].label)}
-                    className={`block text-center p-2 border transition-colors hover:bg-[#ffffff30] hover:cursor-pointer`}
-                  >
-                    <p
-                      className={`font-semibold mt-1 text-2xl ${getTextColorClass(
-                        meanData.data4[5]
-                      )}`}
-                    >
-                      {meanData.data4[5].value == null ? (
-                        <DataNULL iconSize="10" />
-                      ) : (
-                        meanData.data4[5].value
-                      )}
-                    </p>
-                    <p className="text-white font-medium mt-1">
-                      {meanData.data4[5].label}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* right side */}
-      <div
-        className="chart-container-rtl top-[100px]"
-        style={{ height: "calc(100% - 100px)" }}
-      >
-        <div className="chart-content-rtl">
-          <div className="content-ltr bg-[#00000080] flex flex-col gap-2 rounded-sm">
-            <div className="block py-2 px-3">
-              <label className="text-xl font-bold text-white">API5</label>
-              <div className="grid grid-cols-3 justify-between gap-1 my-2">
-                {meanData?.data5?.map((item, index) => {
-                  const moreThanMaxValueType1 = [
-                    "p001",
-                    "p002",
-                    "p003",
-                    "p004",
-                    "p005",
-                    "p006",
-                  ].some(
-                    (label) =>
-                      item.label === label && item.value > minMax.type1.max
-                  );
-
-                  const lessThanMinValueType1 = [
-                    "p001",
-                    "p002",
-                    "p003",
-                    "p004",
-                    "p005",
-                    "p006",
-                  ].some(
-                    (label) =>
-                      item.label === label && item.value < minMax.type1.min
-                  );
-
-                  const moreThanMaxValueType2 = [
-                    "p007",
-                    "p008",
-                    "p009",
-                    "p010",
-                    "p011",
-                    "p012",
-                    "p013",
-                    "p014",
-                    "p015",
-                    "p016",
-                    "p017",
-                    "p018",
-                    "p019",
-                    "p020",
-                  ].some(
-                    (label) =>
-                      item.label === label && item.value > minMax.type2.max
-                  );
-
-                  const lessThanMinValueType2 = [
-                    "p007",
-                    "p008",
-                    "p009",
-                    "p010",
-                    "p011",
-                    "p012",
-                    "p013",
-                    "p014",
-                    "p015",
-                    "p016",
-                    "p017",
-                    "p018",
-                    "p019",
-                    "p020",
-                  ].some(
-                    (label) =>
-                      item.label === label && item.value < minMax.type2.min
-                  );
-
-                  const textColorClass =
-                    moreThanMaxValueType1 || moreThanMaxValueType2
-                      ? "text-red-500"
-                      : lessThanMinValueType1 || lessThanMinValueType2
-                      ? "text-amber-500"
-                      : "text-white";
-
-                  return (
-                    <div
-                      className={`block text-center p-2 border transition-colors hover:bg-[#ffffff30] hover:cursor-pointer`}
-                      key={index}
-                      onClick={() => openChartModal("api5", item.label)}
-                    >
-                      <p className={`font-semibold text-lg ${textColorClass}`}>
-                        {item.value == null ? (
-                          <DataNULL iconSize="5" />
+                </div>
+                <div
+                  onClick={() => openChartModal("api2")}
+                  className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer"
+                >
+                  <label className="text-xl font-bold text-white">API2</label>
+                  <div className="flex justify-around items-center gap-x-2 my-2">
+                    {fieldData2Labels.map((fieldLabel, index) => (
+                      <div className="block text-center" key={index}>
+                        {lastData?.data2?.[fieldLabel] == null ? (
+                          <DataNULL iconSize="10" />
+                        ) : lastData.data2[fieldLabel] === 0 ? (
+                          <CircleTwoToneIcon className="w-12 h-12 text-gray-500" />
                         ) : (
-                          item.value
+                          <CircleTwoToneIcon className="w-12 h-12 text-green-500" />
                         )}
-                      </p>
-                      <p className="text-white font-medium">{item.label}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="block py-2 px-3">
-              <label className="text-xl font-bold text-white">API6</label>
-              <div className="grid grid-cols-2 justify-between gap-1 my-2">
-                {meanData?.data6?.map((item, index) => {
-                  const moreThanMaxValueType1 = ["s208"].some(
-                    (label) =>
-                      item.label === label && item.value > minMax.type1.max
-                  );
-
-                  const lessThanMinValueType1 = ["s208"].some(
-                    (label) =>
-                      item.label === label && item.value < minMax.type1.min
-                  );
-
-                  const moreThanMaxValueType2 = [
-                    "s201",
-                    "s203",
-                    "s204",
-                    "s205",
-                    "s206",
-                    "s207",
-                    "s209",
-                    "s210",
-                  ].some(
-                    (label) =>
-                      item.label === label && item.value > minMax.type2.max
-                  );
-
-                  const lessThanMinValueType2 = [
-                    "s201",
-                    "s203",
-                    "s204",
-                    "s205",
-                    "s206",
-                    "s207",
-                    "s209",
-                    "s210",
-                  ].some(
-                    (label) =>
-                      item.label === label && item.value < minMax.type2.min
-                  );
-
-                  const textColorClass =
-                    moreThanMaxValueType1 || moreThanMaxValueType2
-                      ? "text-red-500"
-                      : lessThanMinValueType1 || lessThanMinValueType2
-                      ? "text-amber-500"
-                      : "text-white";
-
-                  return (
-                    <div
-                      className="block text-center p-2 border transition-colors hover:bg-[#ffffff30] hover:cursor-pointer"
-                      key={index}
-                      onClick={() => openChartModal("api6", item.label)}
-                    >
-                      <p className={`font-semibold text-xl ${textColorClass}`}>
-                        {item.value == null ? (
-                          <DataNULL iconSize="6" />
+                        <p className="text-white font-medium mt-1">
+                          {fieldLabel}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div
+                  onClick={() => openChartModal("api3")}
+                  className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer"
+                >
+                  <label className="text-xl font-bold text-white">API3</label>
+                  <div className="flex justify-around items-center gap-x-2 my-2">
+                    {fieldData3Labels.map((fieldLabel, index) => (
+                      <div className="block text-center" key={index}>
+                        {lastData?.data3?.[fieldLabel] == null ? (
+                          <DataNULL iconSize="9" />
+                        ) : lastData.data3[fieldLabel] === 0 ? (
+                          <CircleTwoToneIcon className="w-10 h-10 text-gray-500" />
                         ) : (
-                          item.value
+                          <CircleTwoToneIcon className="w-10 h-10 text-green-500" />
                         )}
-                      </p>
-                      <p className="text-white font-medium">{item.label}</p>
-                    </div>
-                  );
-                })}
+                        <p className="text-white font-medium mt-1">
+                          {fieldLabel}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div
+                  onClick={() => openChartModal("api4_in")}
+                  className="block py-2 px-3 transition-colors hover:bg-[#00000040] hover:cursor-pointer"
+                >
+                  <label className="text-xl font-bold text-white">
+                    API4 (IN)
+                  </label>
+                  <div className="flex justify-around items-center gap-x-2 my-2">
+                    {fieldData4Labels.map((fieldLabel, index) => (
+                      <div className="block text-center" key={index}>
+                        {lastData?.data4?.[fieldLabel] == null ? (
+                          <DataNULL iconSize="10" />
+                        ) : lastData.data4[fieldLabel] === 0 ? (
+                          <CircleTwoToneIcon className="w-12 h-12 text-gray-500" />
+                        ) : (
+                          <CircleTwoToneIcon className="w-12 h-12 text-green-500" />
+                        )}
+                        <p className="text-white font-medium mt-1">
+                          {fieldLabel}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="block py-2 px-3">
+                  <label className="text-xl font-bold text-white">
+                    API4 (p)
+                  </label>
+                  <div className="grid grid-cols-2 justify-between gap-1 my-2">
+                    {meanData.data4 && meanData.data4[4] && (
+                      <div
+                        onClick={() =>
+                          openChartModal("api4", meanData.data4[4].label)
+                        }
+                        className={`block text-center p-2 border transition-colors hover:bg-[#ffffff30] hover:cursor-pointer`}
+                      >
+                        <p
+                          className={`font-semibold mt-1 text-2xl ${getTextColorClass(
+                            meanData.data4[4]
+                          )}`}
+                        >
+                          {meanData.data4[4].value == null ? (
+                            <DataNULL iconSize="10" />
+                          ) : (
+                            meanData.data4[4].value
+                          )}
+                        </p>
+                        <p className="text-white font-medium mt-1">
+                          {meanData.data4[4].label}
+                        </p>
+                      </div>
+                    )}
+
+                    {meanData.data4 && meanData.data4[5] && (
+                      <div
+                        onClick={() =>
+                          openChartModal("api4", meanData.data4[5].label)
+                        }
+                        className={`block text-center p-2 border transition-colors hover:bg-[#ffffff30] hover:cursor-pointer`}
+                      >
+                        <p
+                          className={`font-semibold mt-1 text-2xl ${getTextColorClass(
+                            meanData.data4[5]
+                          )}`}
+                        >
+                          {meanData.data4[5].value == null ? (
+                            <DataNULL iconSize="10" />
+                          ) : (
+                            meanData.data4[5].value
+                          )}
+                        </p>
+                        <p className="text-white font-medium mt-1">
+                          {meanData.data4[5].label}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <ModalChartDetail
-        openModal={openModal}
-        onCloseModal={closeChartModal}
-        title={titleModal}
-        chartType={chartType}
-        chartData={chartData}
-        chartDataLabel={chartDataLabel}
-      />
+
+          <div
+            className="chart-container-rtl top-[100px]"
+            style={{ height: "calc(100% - 100px)" }}
+          >
+            <div className="chart-content-rtl">
+              <div className="content-ltr bg-[#00000080] flex flex-col gap-2 rounded-sm">
+                <div className="block py-2 px-3">
+                  <label className="text-xl font-bold text-white">API5</label>
+                  <div className="grid grid-cols-3 justify-between gap-1 my-2">
+                    {meanData?.data5?.map((item, index) => {
+                      const moreThanMaxValueType1 = [
+                        "p001",
+                        "p002",
+                        "p003",
+                        "p004",
+                        "p005",
+                        "p006",
+                      ].some(
+                        (label) =>
+                          item.label === label && item.value > minMax.type1.max
+                      );
+
+                      const lessThanMinValueType1 = [
+                        "p001",
+                        "p002",
+                        "p003",
+                        "p004",
+                        "p005",
+                        "p006",
+                      ].some(
+                        (label) =>
+                          item.label === label && item.value < minMax.type1.min
+                      );
+
+                      const moreThanMaxValueType2 = [
+                        "p007",
+                        "p008",
+                        "p009",
+                        "p010",
+                        "p011",
+                        "p012",
+                        "p013",
+                        "p014",
+                        "p015",
+                        "p016",
+                        "p017",
+                        "p018",
+                        "p019",
+                        "p020",
+                      ].some(
+                        (label) =>
+                          item.label === label && item.value > minMax.type2.max
+                      );
+
+                      const lessThanMinValueType2 = [
+                        "p007",
+                        "p008",
+                        "p009",
+                        "p010",
+                        "p011",
+                        "p012",
+                        "p013",
+                        "p014",
+                        "p015",
+                        "p016",
+                        "p017",
+                        "p018",
+                        "p019",
+                        "p020",
+                      ].some(
+                        (label) =>
+                          item.label === label && item.value < minMax.type2.min
+                      );
+
+                      const textColorClass =
+                        moreThanMaxValueType1 || moreThanMaxValueType2
+                          ? "text-red-500"
+                          : lessThanMinValueType1 || lessThanMinValueType2
+                          ? "text-amber-500"
+                          : "text-white";
+
+                      return (
+                        <div
+                          className={`block text-center p-2 border transition-colors hover:bg-[#ffffff30] hover:cursor-pointer`}
+                          key={index}
+                          onClick={() => openChartModal("api5", item.label)}
+                        >
+                          <p
+                            className={`font-semibold text-lg ${textColorClass}`}
+                          >
+                            {item.value == null ? (
+                              <DataNULL iconSize="5" />
+                            ) : (
+                              item.value
+                            )}
+                          </p>
+                          <p className="text-white font-medium">{item.label}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="block py-2 px-3">
+                  <label className="text-xl font-bold text-white">API6</label>
+                  <div className="grid grid-cols-2 justify-between gap-1 my-2">
+                    {meanData?.data6?.map((item, index) => {
+                      const moreThanMaxValueType1 = ["s208"].some(
+                        (label) =>
+                          item.label === label && item.value > minMax.type1.max
+                      );
+
+                      const lessThanMinValueType1 = ["s208"].some(
+                        (label) =>
+                          item.label === label && item.value < minMax.type1.min
+                      );
+
+                      const moreThanMaxValueType2 = [
+                        "s201",
+                        "s203",
+                        "s204",
+                        "s205",
+                        "s206",
+                        "s207",
+                        "s209",
+                        "s210",
+                      ].some(
+                        (label) =>
+                          item.label === label && item.value > minMax.type2.max
+                      );
+
+                      const lessThanMinValueType2 = [
+                        "s201",
+                        "s203",
+                        "s204",
+                        "s205",
+                        "s206",
+                        "s207",
+                        "s209",
+                        "s210",
+                      ].some(
+                        (label) =>
+                          item.label === label && item.value < minMax.type2.min
+                      );
+
+                      const textColorClass =
+                        moreThanMaxValueType1 || moreThanMaxValueType2
+                          ? "text-red-500"
+                          : lessThanMinValueType1 || lessThanMinValueType2
+                          ? "text-amber-500"
+                          : "text-white";
+
+                      return (
+                        <div
+                          className="block text-center p-2 border transition-colors hover:bg-[#ffffff30] hover:cursor-pointer"
+                          key={index}
+                          onClick={() => openChartModal("api6", item.label)}
+                        >
+                          <p
+                            className={`font-semibold text-xl ${textColorClass}`}
+                          >
+                            {item.value == null ? (
+                              <DataNULL iconSize="6" />
+                            ) : (
+                              item.value
+                            )}
+                          </p>
+                          <p className="text-white font-medium">{item.label}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ModalChartDetail
+            openModal={openModal}
+            onCloseModal={closeChartModal}
+            title={titleModal}
+            chartType={chartType}
+            chartData={chartData}
+            chartDataLabel={chartDataLabel}
+          />
+        </React.Fragment>
+      )}
     </ThemeProvider>
   );
 }
