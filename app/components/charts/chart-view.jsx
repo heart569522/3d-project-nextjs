@@ -147,8 +147,7 @@ export default function ChartView({ isLastData }) {
   };
 
   const openChartModal = (chartType, itemLabel) => {
-    console.log("itemLabel: ", itemLabel);
-    console.log("openChartModal...");
+    // console.log("open modal...");
 
     switch (chartType) {
       case "api1":
@@ -269,7 +268,7 @@ export default function ChartView({ isLastData }) {
 
   const fetchData = async () => {
     try {
-      console.log(`Fetching data...`);
+      // console.log(`Fetching data...`);
 
       const [res1, res2, res3, res4, res5, res6] = await Promise.all([
         getAllData("api1"),
@@ -438,7 +437,7 @@ export default function ChartView({ isLastData }) {
               title="Show/Hide Panel"
               placement="left"
             >
-              <IconButton className="bg-white" onClick={handleShowHidePanel}>
+              <IconButton className="bg-white hover:bg-[#d8d8d8] transition-colors" onClick={handleShowHidePanel}>
                 <CalendarViewMonthIcon
                   className={` ${
                     isHideChart ? "text-red-400" : "text-gray-800"

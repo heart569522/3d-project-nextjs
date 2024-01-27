@@ -77,7 +77,6 @@ export function Room(props) {
   };
 
   const handleObjectHover = (object) => {
-    console.log(object);
     setHover(object);
     props.onObjectHover(object);
   };
@@ -132,9 +131,9 @@ export function Room(props) {
                         </div>
                         <div className="flex justify-start">
                           <p>
-                            {lastData.lastData3[fieldLabel] == null
+                            {lastData?.lastData3?.[fieldLabel] == null
                               ? "null"
-                              : lastData.lastData3[fieldLabel]}
+                              : lastData?.lastData3?.[fieldLabel]}
                           </p>
                         </div>
                       </React.Fragment>
@@ -179,9 +178,9 @@ export function Room(props) {
                     </div>
                     <div className="flex justify-start">
                       <p>
-                        {lastData.lastData1.OUT1 == null
+                        {lastData?.lastData1?.OUT1 == null
                           ? "null"
-                          : lastData.lastData1.OUT1}
+                          : lastData?.lastData1?.OUT1}
                       </p>
                     </div>
                   </div>
@@ -196,9 +195,9 @@ export function Room(props) {
                         </div>
                         <div className="flex justify-start">
                           <p>
-                            {lastData.lastData6[fieldLabel] == null
+                            {lastData?.lastData6?.[fieldLabel] == null
                               ? "null"
-                              : lastData.lastData6[fieldLabel]
+                              : lastData?.lastData6?.[fieldLabel]
                                 .toFixed(2)
                                 .toLocaleString()}
                           </p>
@@ -246,11 +245,11 @@ export function Room(props) {
                         </div>
                         <div className="flex justify-start">
                           <p>
-                            {lastData.lastData4[fieldLabel] == null
+                            {lastData?.lastData4?.[fieldLabel] == null
                               ? "null"
                               : fieldLabel == "p221" || fieldLabel == "p222"
-                                ? lastData.lastData4[fieldLabel].toFixed(2)
-                                : lastData.lastData4[fieldLabel]}
+                                ? lastData?.lastData4?.[fieldLabel].toFixed(2)
+                                : lastData?.lastData4?.[fieldLabel]}
                           </p>
                         </div>
                       </React.Fragment>
@@ -288,9 +287,9 @@ export function Room(props) {
                       </div>
                       <div className="flex justify-start">
                         <p>
-                          {lastData.lastData5[fieldLabel] == null
+                          {lastData?.lastData5?.[fieldLabel] == null
                             ? "null"
-                            : lastData.lastData5[fieldLabel]
+                            : lastData?.lastData5?.[fieldLabel]
                               .toFixed(2)
                               .toLocaleString()}
                         </p>
@@ -331,9 +330,9 @@ export function Room(props) {
                         </div>
                         <div className="flex justify-start">
                           <p>
-                            {lastData.lastData2[fieldLabel] == null
+                            {lastData?.lastData2?.[fieldLabel] == null
                               ? "null"
-                              : lastData.lastData2[fieldLabel]}
+                              : lastData?.lastData2?.[fieldLabel]}
                           </p>
                         </div>
                       </React.Fragment>

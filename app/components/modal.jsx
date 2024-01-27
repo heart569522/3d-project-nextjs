@@ -7,8 +7,8 @@ import { BarChart } from "@mui/x-charts/BarChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { filterDataByTime } from "@/app/lib/service";
 import { getISOWeek } from "date-fns";
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
 
 const style = {
   position: "absolute",
@@ -37,7 +37,7 @@ export default function ModalChartDetail({
 }) {
   const [selectedOption, setSelectedOption] = useState("daily");
   const [dailyChart, setDailyChart] = useState([]);
-  console.log("🚀 ~ dailyChart:", dailyChart);
+  // console.log("🚀 ~ dailyChart:", dailyChart);
 
   const handleCloseModal = () => {
     setSelectedOption("daily");
@@ -367,10 +367,10 @@ export default function ModalChartDetail({
               onChange={handleSelectChange}
               size="small"
             >
-              <MenuItem value={'daily'}>รายวัน</MenuItem>
-              <MenuItem value={'weekly'}>รายสัปดาห์</MenuItem>
-              <MenuItem value={'monthly'}>รายเดือน</MenuItem>
-              <MenuItem value={'yearly'}>รายปี</MenuItem>
+              <MenuItem value={"daily"}>รายวัน</MenuItem>
+              <MenuItem value={"weekly"}>รายสัปดาห์</MenuItem>
+              <MenuItem value={"monthly"}>รายเดือน</MenuItem>
+              <MenuItem value={"yearly"}>รายปี</MenuItem>
             </Select>
           </div>
         </div>
