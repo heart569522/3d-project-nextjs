@@ -12,7 +12,11 @@ import CircleTwoToneIcon from "@mui/icons-material/CircleTwoTone";
 import CloudOffTwoToneIcon from "@mui/icons-material/CloudOffTwoTone";
 import ModalChartDetail from "../modal";
 import CalendarViewMonthIcon from "@mui/icons-material/CalendarViewMonth";
-import { filterDataByTime, calculateMean } from "@/app/lib/service";
+import {
+  filterDataByTime,
+  calculateMean,
+  convertToDateTimeText,
+} from "@/app/lib/service";
 
 const theme = createTheme({
   palette: {
@@ -83,6 +87,7 @@ export function DataNULL({ iconSize }) {
 
 export default function ChartView({ isLastData }) {
   const [isHideChart, setIsHideChart] = useState(false);
+  const [dataDateTime, setDataDateTime] = useState("");
 
   const [data, setData] = useState({
     data1: [],
@@ -314,6 +319,11 @@ export default function ChartView({ isLastData }) {
       });
 
       setLastData(lastDataFiltered);
+
+      const thaiDateTime = new Date().toISOString("en-US", {
+        timeZone: "Asia/Bangkok",
+      });
+      setDataDateTime(convertToDateTimeText(thaiDateTime));
     } catch (error) {
       console.error(error);
     }
@@ -322,7 +332,7 @@ export default function ChartView({ isLastData }) {
   useEffect(() => {
     fetchData();
 
-    const interval = setInterval(fetchData, 100000);
+    const interval = setInterval(fetchData, 120000);
 
     return () => clearInterval(interval);
   }, [selectedOption]);
@@ -428,23 +438,33 @@ export default function ChartView({ isLastData }) {
       {/* header */}
       <div className="header-container top-0 h-[100px]">
         <div className="bg-[#00000080] p-2 rounded-sm">
-          <div className="flex justify-between px-6 items-center">
-            <div></div>
-            <h1 className="text-center py-6 text-white font-semibold text-2xl">
-              BPS
-            </h1>
-            <Tooltip
-              title="Show/Hide Panel"
-              placement="left"
-            >
-              <IconButton className="bg-white hover:bg-[#d8d8d8] transition-colors" onClick={handleShowHidePanel}>
-                <CalendarViewMonthIcon
-                  className={` ${
-                    isHideChart ? "text-red-400" : "text-gray-800"
-                  } rotate-90 w-7 h-7`}
-                />
-              </IconButton>
-            </Tooltip>
+          <div className="grid grid-cols-3 px-2 items-center">
+            <div>
+              <p className="text-white italic">
+                ข้อมูลล่าสุดเมื่อ : {dataDateTime ? dataDateTime : "-"}
+              </p>
+            </div>
+
+            <div>
+              <h1 className="text-center py-6 text-white font-semibold text-2xl">
+                BPS
+              </h1>
+            </div>
+
+            <div className="text-right">
+              <Tooltip title="Show/Hide Panel" placement="left">
+                <IconButton
+                  className="bg-white hover:bg-[#d8d8d8] transition-colors"
+                  onClick={handleShowHidePanel}
+                >
+                  <CalendarViewMonthIcon
+                    className={` ${
+                      isHideChart ? "text-red-500" : "text-gray-800"
+                    } rotate-90 w-7 h-7`}
+                  />
+                </IconButton>
+              </Tooltip>
+            </div>
           </div>
         </div>
       </div>
