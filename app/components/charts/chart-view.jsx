@@ -332,7 +332,7 @@ export default function ChartView({ isLastData }) {
   useEffect(() => {
     fetchData();
 
-    const interval = setInterval(fetchData, 120000);
+    const interval = setInterval(fetchData, 60 * 60 * 1000);
 
     return () => clearInterval(interval);
   }, [selectedOption]);
