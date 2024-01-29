@@ -440,7 +440,7 @@ export default function ChartView({ isLastData }) {
         <div className="bg-[#00000080] p-2 rounded-sm">
           <div className="grid grid-cols-3 px-2 items-center">
             <div>
-              <p className="text-white italic">
+              <p className="text-white italic text-sm">
                 ข้อมูลล่าสุดเมื่อ : {dataDateTime ? dataDateTime : "-"}
               </p>
             </div>
