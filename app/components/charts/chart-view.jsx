@@ -108,6 +108,7 @@ export default function ChartView({ isLastData }) {
     data5: null,
     data6: null,
   });
+  // console.log("🚀 ~ ChartView ~ rangeData:", rangeData);
 
   const [dailyChart, setDailyChart] = useState({
     data1: null,
@@ -392,10 +393,15 @@ export default function ChartView({ isLastData }) {
       return [];
     }
 
-    return data.map((entry, index) => ({
-      ...entry,
-      hour: `${String(index)}:00`,
-    }));
+    return data.map((entry) => {
+      const recordDate = new Date(entry.record_at);
+      const recordHour = recordDate.getUTCHours();
+
+      return {
+        ...entry,
+        hour: `${String(recordHour).padStart(2, "0")}:00`,
+      };
+    });
   };
 
   useEffect(() => {
@@ -404,6 +410,7 @@ export default function ChartView({ isLastData }) {
     updatedRangeData.data3 = addHourField(rangeData.data3);
     updatedRangeData.data4 = addHourField(rangeData.data4);
     updatedRangeData.data5 = addHourField(rangeData.data5);
+    console.log("🚀 ~ useEffect ~ updatedRangeData.data5:", updatedRangeData.data5)
     updatedRangeData.data6 = addHourField(rangeData.data6);
 
     setDailyChart((prevChart) => ({

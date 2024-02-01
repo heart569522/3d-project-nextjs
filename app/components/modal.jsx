@@ -37,7 +37,7 @@ export default function ModalChartDetail({
 }) {
   const [selectedOption, setSelectedOption] = useState("daily");
   const [dailyChart, setDailyChart] = useState([]);
-  // console.log("🚀 ~ dailyChart:", dailyChart);
+  console.log("🚀 ~ dailyChart:", dailyChart);
 
   const handleCloseModal = () => {
     setSelectedOption("daily");
@@ -133,10 +133,16 @@ export default function ModalChartDetail({
       return [];
     }
 
-    return data.map((entry, index) => ({
-      ...entry,
-      hour: `${String(index)}:00`,
-    }));
+    return data.map((entry) => {
+      const recordDate = new Date(entry.record_at);
+      const recordHour = recordDate.getUTCHours();
+      console.log("🚀 ~ returndata.map ~ recordHour:", recordHour);
+
+      return {
+        ...entry,
+        hour: `${String(recordHour).padStart(2, "0")}:00`,
+      };
+    });
   };
 
   const getFieldLabels = (chartType) => {
@@ -261,32 +267,44 @@ export default function ModalChartDetail({
 
     const yearlyMeanData = data.reduce((acc, entry) => {
       const year = new Date(entry.record_at).getFullYear();
+      const month = new Date(entry.record_at).getMonth();
 
       if (!acc[year]) {
-        acc[year] = { sum: {}, count: 0 };
+        acc[year] = { sum: {}, count: Array(12).fill(0) };
         fieldLabels.forEach((fieldLabel) => {
-          acc[year].sum[fieldLabel] = 0;
+          acc[year].sum[fieldLabel] = Array(12).fill(0);
         });
       }
 
       fieldLabels.forEach((fieldLabel) => {
-        acc[year].sum[fieldLabel] += entry[fieldLabel];
+        acc[year].sum[fieldLabel][month] += entry[fieldLabel];
       });
 
-      acc[year].count++;
-
+      acc[year].count[month]++;
       return acc;
     }, {});
 
-    return Object.keys(yearlyMeanData).map((year) => {
-      const meanValues = {};
-      fieldLabels.forEach((fieldLabel) => {
-        meanValues[fieldLabel] =
-          yearlyMeanData[year].sum[fieldLabel] / yearlyMeanData[year].count;
-      });
+    const currentMonthIndex = new Date().getMonth();
 
-      return meanValues;
-    });
+    return Object.keys(yearlyMeanData)
+      .map((year) => {
+        return Array(currentMonthIndex + 1)
+          .fill(0)
+          .map((_, month) => {
+            const meanValues = {
+              month: getMonthLabel(month),
+            };
+
+            fieldLabels.forEach((fieldLabel) => {
+              meanValues[fieldLabel] =
+                yearlyMeanData[year].sum[fieldLabel][month] /
+                  yearlyMeanData[year].count[month] || NaN;
+            });
+
+            return meanValues;
+          });
+      })
+      .flat();
   };
 
   useEffect(() => {
@@ -319,7 +337,12 @@ export default function ModalChartDetail({
 
       case "yearly":
         const yearlyMeanValue = calculateYearlyMean(rangeData, chartType);
+        console.log("🚀 ~ useEffect ~ yearlyMeanValue:", yearlyMeanValue);
         const limitedYaerlyMeanData = yearlyMeanValue.slice(0, 12);
+        console.log(
+          "🚀 ~ useEffect ~ limitedYaerlyMeanData:",
+          limitedYaerlyMeanData
+        );
         const dailyChartWithMonth = limitedYaerlyMeanData.map(
           (entry, index) => ({
             ...entry,
