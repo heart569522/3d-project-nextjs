@@ -21,7 +21,7 @@ export function convertToDateTimeText(value) {
 
 export function filterDataByTime(data, timeRange) {
     const formatter = new Intl.DateTimeFormat("en-US", {
-        timeZone: "UTC",
+        timeZone: "Asia/Bangkok",
     });
     const dateNow = formatter.format(new Date());
     const currentDate = new Date(dateNow);
